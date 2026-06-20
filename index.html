@@ -866,10 +866,15 @@ function renderHomeDragonNotice(){
   const countEl=$('dragonTodayCountdown');
   if(!alertEl||!countEl)return;
   const state=todayDragonAlertState();
-  alertEl.classList.toggle('open',!!state.show);
-  if(state.show){
+  const shouldShow=!!state.show && currentView==='home';
+  alertEl.classList.toggle('open',shouldShow);
+  // showHome()에서 남은 inline display:block 때문에 참여 후에도 카드가 남는 문제 방지
+  alertEl.style.display=shouldShow?'block':'none';
+  if(shouldShow){
     countEl.textContent=formatCountdown(state.left);
     if(state.left<=0){setTimeout(()=>{renderHomeDragonNotice();renderDragonCanyon(false);renderDragonParticipants(false)},500)}
+  }else{
+    countEl.textContent='';
   }
 }
 
@@ -1000,7 +1005,7 @@ function showSection(targetId,push=true){
   closeAllOpenPanels(); currentView=targetId; $('welcomeHero').style.display='none'; if($('dragonTodayAlert')){$('dragonTodayAlert').classList.remove('open');$('dragonTodayAlert').style.display='none'} $('homeEventBlock').style.display='none'; $('homeQuickBlock').style.display='none'; $('homeManageBlock').style.display='none';['myInfoSection','guildGreeting','manageSection','dragonCanyon','dragonManage','eventSection','eventManage'].forEach(id=>$(id).style.display=id===targetId?'block':'none');document.querySelectorAll('.menu-item').forEach(item=>item.classList.toggle('active',item.dataset.target===targetId)); if(targetId==='manageSection'){setManageTab('active')}else if(targetId==='dragonCanyon'){setDragonCanyonTab('join');renderTable();renderManageTable();renderWithdrawTable()}else if(targetId==='dragonManage'){setDragonManageTab('season');renderDragonCanyon(false);renderTable();renderManageTable();renderWithdrawTable();renderEvents()}else if(targetId==='eventSection'||targetId==='eventManage'){renderEvents();renderTable();renderManageTable();renderWithdrawTable();renderMyInfo()}else{renderMyInfo();renderTable();renderManageTable();renderWithdrawTable();renderEvents()} renderMyInfo(); applyRoleVisibility(); closeDrawer(); if(push)pushViewState(targetId,fromDrawer); window.scrollTo({top:0,behavior:'smooth'})}
 function showHome(doRender=true,push=true){
   const fromDrawer=$('drawer')&&$('drawer').classList.contains('open');
-  closeAllOpenPanels(); currentView='home'; $('welcomeHero').style.display='flex'; if($('dragonTodayAlert'))$('dragonTodayAlert').style.display='block'; $('homeEventBlock').style.display='block'; $('homeQuickBlock').style.display='block'; $('homeManageBlock').style.display=isRepresentative()?'block':'none';['myInfoSection','guildGreeting','manageSection','dragonCanyon','dragonManage','eventSection','eventManage'].forEach(id=>$(id).style.display='none');document.querySelectorAll('.menu-item').forEach(item=>item.classList.remove('active'));renderHomeEvents();if(doRender)refreshAll(false);applyRoleVisibility();closeDrawer(); if(push)pushViewState('home',fromDrawer); window.scrollTo({top:0,behavior:'smooth'})}
+  closeAllOpenPanels(); currentView='home'; $('welcomeHero').style.display='flex'; if($('dragonTodayAlert'))$('dragonTodayAlert').style.display='none'; $('homeEventBlock').style.display='block'; $('homeQuickBlock').style.display='block'; $('homeManageBlock').style.display=isRepresentative()?'block':'none';['myInfoSection','guildGreeting','manageSection','dragonCanyon','dragonManage','eventSection','eventManage'].forEach(id=>$(id).style.display='none');document.querySelectorAll('.menu-item').forEach(item=>item.classList.remove('active'));renderHomeEvents();if(doRender)refreshAll(false);applyRoleVisibility();closeDrawer(); if(push)pushViewState('home',fromDrawer); window.scrollTo({top:0,behavior:'smooth'})}
 fillRanks($('rankSelect'));fillRanks($('editRank'));fillRanks($('newHistoryRank'));fillGrades($('editGrade'));fillPositions($('editPosition'));fillEventTypes($('eventType'));
 $('googleLoginBtn').onclick=signInGoogle; $('googleLogoutBtn').onclick=logOutGoogle;
 $('editGrade').onchange=()=>{$('editRank').value=rankFromGrade($('editGrade').value)}; $('editRank').onchange=()=>{$('editGrade').value=gradeFromRank($('editRank').value)}; $('newHistoryRank').onchange=updateNewHistoryGrade;
