@@ -14,17 +14,17 @@
     body{margin:0;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;color:var(--text);background:radial-gradient(circle at top left,rgba(18,104,255,.18),transparent 34%),linear-gradient(180deg,#f7fbff 0%,#eef6ff 42%,#fff 100%);overflow-x:hidden}
     button,input,select{font-family:inherit}
     .app{width:min(100%,480px);min-height:100vh;margin:0 auto;position:relative;background:rgba(255,255,255,.62);overflow:hidden}
-    .screen{display:none;min-height:100vh;padding:14px 14px 24px}.screen.active{display:block}
-    .join-wrap{display:flex;min-height:100vh;align-items:flex-start;justify-content:center;padding:8px 18px 24px}.join-card{width:100%;border-radius:30px;background:rgba(255,255,255,.92);box-shadow:var(--shadow);padding:28px 20px 22px;border:1px solid rgba(18,104,255,.12)}
-    .badge{width:fit-content;padding:7px 12px;border-radius:999px;background:var(--light-blue);color:var(--deep-blue);font-size:11px;font-weight:900}.join-title{margin:18px 0 6px;font-size:30px;line-height:1.15;font-weight:950;letter-spacing:-1.2px}.join-desc{margin:0 0 26px;color:var(--muted);font-size:14px;line-height:1.55}
+    .screen{display:none;min-height:100vh;padding:0 14px 18px}.screen.active{display:block}
+    .join-wrap{display:flex;min-height:auto;align-items:flex-start;justify-content:center;padding:0 18px 14px}.join-card{width:100%;border-radius:30px;background:rgba(255,255,255,.92);box-shadow:var(--shadow);padding:22px 20px 20px;border:1px solid rgba(18,104,255,.12);margin-top:0}
+    .badge{width:fit-content;padding:7px 12px;border-radius:999px;background:var(--light-blue);color:var(--deep-blue);font-size:11px;font-weight:900}.join-title{margin:14px 0 6px;font-size:29px;line-height:1.15;font-weight:950;letter-spacing:-1.2px}.join-desc{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.55}
 
-    .auth-box{margin:18px 0 18px;padding:14px;border:1px solid rgba(18,104,255,.16);border-radius:18px;background:rgba(238,246,255,.7)}
+    .auth-box{margin:14px 0 14px;padding:14px;border:1px solid rgba(18,104,255,.16);border-radius:18px;background:rgba(238,246,255,.7)}
     .auth-status{margin:0 0 10px;color:var(--muted);font-size:13px;font-weight:750;line-height:1.45}.auth-status strong{color:var(--deep-blue);font-weight:950}.auth-status .login-done{display:block;color:var(--deep-blue);font-size:14px;font-weight:950;margin-bottom:4px}.auth-status .login-email{display:block;color:var(--muted);font-size:12px;font-weight:700;margin-top:2px}.join-role-note{margin:10px 0 0;color:var(--muted);font-size:12px;font-weight:750;line-height:1.55}.join-role-note strong{color:var(--deep-blue);font-weight:950}
     .google-btn{width:100%;height:48px;border-radius:14px;border:1px solid rgba(18,104,255,.18);background:#fff;color:var(--deep-blue);font-size:14px;font-weight:950;box-shadow:0 8px 18px rgba(7,71,184,.06)}
     .google-btn.secondary{margin-top:8px;color:var(--muted);font-size:12px;height:42px}
     .cloud-note{margin:8px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
-    label{display:block;margin:16px 0 8px;color:var(--deep-blue);font-size:11px;font-weight:900} input,select{width:100%;height:52px;border:1px solid rgba(18,104,255,.22);border-radius:16px;background:#fff;padding:0 15px;color:var(--text);font-size:16px;outline:none} select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--blue) 50%),linear-gradient(135deg,var(--blue) 50%,transparent 50%);background-position:calc(100% - 21px) 22px,calc(100% - 15px) 22px;background-size:6px 6px,6px 6px;background-repeat:no-repeat} input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(18,104,255,.1)}
-    .primary-btn,.secondary-btn{width:100%;height:52px;border-radius:16px;font-size:15px;font-weight:950}.primary-btn{margin-top:24px;border:0;background:linear-gradient(135deg,var(--blue),var(--deep-blue));color:#fff;box-shadow:0 14px 26px rgba(18,104,255,.24)}.secondary-btn{margin-top:14px;border:1px solid rgba(18,104,255,.18);background:#fff;color:var(--deep-blue)}
+    label{display:block;margin:13px 0 7px;color:var(--deep-blue);font-size:11px;font-weight:900} input,select{width:100%;height:52px;border:1px solid rgba(18,104,255,.22);border-radius:16px;background:#fff;padding:0 15px;color:var(--text);font-size:16px;outline:none} select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--blue) 50%),linear-gradient(135deg,var(--blue) 50%,transparent 50%);background-position:calc(100% - 21px) 22px,calc(100% - 15px) 22px;background-size:6px 6px,6px 6px;background-repeat:no-repeat} input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(18,104,255,.1)}
+    .primary-btn,.secondary-btn{width:100%;height:52px;border-radius:16px;font-size:15px;font-weight:950}.primary-btn{margin-top:18px;border:0;background:linear-gradient(135deg,var(--blue),var(--deep-blue));color:#fff;box-shadow:0 14px 26px rgba(18,104,255,.24)}.secondary-btn{margin-top:14px;border:1px solid rgba(18,104,255,.18);background:#fff;color:var(--deep-blue)}
     .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:2px 0 12px}.guild-title{margin:0;color:var(--deep-blue);font-size:23px;font-weight:950;letter-spacing:-.9px}.icon-row{display:flex;gap:8px}.icon-btn{width:38px;height:38px;border:0;border-radius:50%;background:rgba(255,255,255,.72);color:var(--deep-blue);display:grid;place-items:center;box-shadow:0 8px 22px rgba(7,71,184,.08)}.icon-btn svg{width:21px;height:21px;stroke-width:2.25}
     .hero{margin-top:2px;padding:18px;border-radius:24px;color:#fff;background:linear-gradient(135deg,rgba(18,104,255,.96),rgba(7,71,184,.96)),radial-gradient(circle at top right,rgba(255,255,255,.34),transparent 34%);box-shadow:var(--shadow);min-height:118px;display:flex;flex-direction:column;justify-content:flex-end}.hero-main{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}.hero-text{min-width:0;flex:1}.welcome-name{margin:0 0 7px;font-size:32px;font-weight:950;letter-spacing:-1.4px;line-height:1.08}.welcome-name .name-sub{font-size:15px;font-weight:300;opacity:.86;letter-spacing:-.4px}.welcome-small{margin:0;font-size:13px;font-weight:300;opacity:.86;letter-spacing:-.2px}.promote-btn{flex:0 0 auto;border:1px solid rgba(255,255,255,.36);background:rgba(255,255,255,.16);color:#fff;border-radius:999px;padding:9px 11px;font-size:11px;font-weight:950;backdrop-filter:blur(8px)}.promote-btn:active{transform:scale(.97);background:rgba(255,255,255,.25)}.promotion-panel{margin-top:10px;border-radius:18px;background:rgba(255,255,255,.78);padding:12px 0 14px}.promotion-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 4px}.promotion-chip{border:1px solid rgba(18,104,255,.14);border-radius:14px;background:#fff;padding:10px}.promotion-chip span{display:block;color:var(--muted);font-size:11px;font-weight:800}.promotion-chip strong{display:block;margin-top:4px;color:var(--deep-blue);font-size:14px;font-weight:950}.promotion-grade-line{margin:8px 0 0;color:var(--muted);font-size:13px;font-weight:700}.promotion-grade-line strong{color:var(--deep-blue);font-weight:950}
     .home-quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.home-quick.single{grid-template-columns:1fr}.home-quick.three{grid-template-columns:repeat(3,1fr);gap:8px}.home-quick.three .home-quick-btn{font-size:13px;padding:0 6px}.home-quick-btn{height:54px;border:1px solid rgba(18,104,255,.18);border-radius:18px;background:rgba(255,255,255,.76);color:var(--deep-blue);font-size:15px;font-weight:950;box-shadow:0 10px 24px rgba(7,71,184,.08)}.home-quick-btn:active{transform:scale(.985);background:var(--light-blue)}
@@ -132,6 +132,11 @@
     .range-grid label{margin:0;color:var(--muted);font-size:10px}.range-grid input[type="range"]{height:32px;padding:0;border:0;background:transparent;box-shadow:none}
     .image-actions{display:flex;gap:10px;margin-top:10px}.image-actions .text-btn{font-size:12px}
 
+
+    /* v50 가입 화면 상단 정렬/압축 */
+    #joinScreen.screen{padding-top:0!important;}
+    #joinScreen .join-wrap{min-height:auto!important;padding-top:0!important;margin-top:0!important;align-items:flex-start!important;}
+    #joinScreen .join-card{margin-top:0!important;}
   </style>
 </head>
 <body>
@@ -147,7 +152,7 @@
         <button class="google-btn secondary" id="googleLogoutBtn" type="button" style="display:none">로그아웃</button>
         <p class="cloud-note">길드 정보는 Firebase Firestore에 저장됩니다. 이미지는 Storage 연결 전까지 이 기기에만 임시 저장됩니다.</p>
       </div>
-      <label for="nicknameInput">닉네임</label><input id="nicknameInput" type="text" placeholder="닉네임을 입력하세요" autocomplete="off">
+      <label for="nicknameInput">닉네임</label><input id="nicknameInput" type="text" placeholder="닉네임을 입력하세요" autocomplete="new-password" name="guildNickname" autocapitalize="off" spellcheck="false" data-lpignore="true">
       <label for="rankSelect">승급</label><select id="rankSelect"></select>
       <p class="join-role-note" id="joinRoleNotice">Google 로그인 후 가입 권한이 표시됩니다.</p>
       <button class="primary-btn" id="joinBtn">가입하기</button>
@@ -791,12 +796,16 @@ async function initFirebaseAuth(){
   setJoinEnabled(false);
   onAuthStateChanged(auth,async user=>{
     currentUser=user; updateAuthStatus(user);
-    if(!user){$('joinScreen').classList.add('active');$('mainScreen').classList.remove('active');return}
+    if(!user){const nickInput=$('nicknameInput'); if(nickInput) nickInput.value=''; $('joinScreen').classList.add('active');$('mainScreen').classList.remove('active');return}
     await loadCloudState();
     updateJoinRoleNotice();
     const existing=currentMember();
     if(existing){showMain(existing)}
-    else{$('joinScreen').classList.add('active');$('mainScreen').classList.remove('active')}
+    else{
+      const nickInput=$('nicknameInput');
+      if(nickInput) nickInput.value='';
+      $('joinScreen').classList.add('active');$('mainScreen').classList.remove('active')
+    }
   });
 }
 function showMain(m){$('joinScreen').classList.remove('active');$('mainScreen').classList.add('active');showHome(false,false);pushViewState('home',true);renderCurrentUser(m)}
