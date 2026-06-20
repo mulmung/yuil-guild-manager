@@ -15,7 +15,7 @@
     button,input,select{font-family:inherit}
     .app{width:min(100%,480px);min-height:100vh;margin:0 auto;position:relative;background:rgba(255,255,255,.62);overflow:hidden}
     .screen{display:none;min-height:100vh;padding:14px 14px 24px}.screen.active{display:block}
-    .join-wrap{display:flex;min-height:100vh;align-items:flex-start;justify-content:center;padding:56px 18px 28px}.join-card{width:100%;border-radius:30px;background:rgba(255,255,255,.92);box-shadow:var(--shadow);padding:28px 20px 22px;border:1px solid rgba(18,104,255,.12)}
+    .join-wrap{display:flex;min-height:100vh;align-items:flex-start;justify-content:center;padding:8px 18px 24px}.join-card{width:100%;border-radius:30px;background:rgba(255,255,255,.92);box-shadow:var(--shadow);padding:28px 20px 22px;border:1px solid rgba(18,104,255,.12)}
     .badge{width:fit-content;padding:7px 12px;border-radius:999px;background:var(--light-blue);color:var(--deep-blue);font-size:11px;font-weight:900}.join-title{margin:18px 0 6px;font-size:30px;line-height:1.15;font-weight:950;letter-spacing:-1.2px}.join-desc{margin:0 0 26px;color:var(--muted);font-size:14px;line-height:1.55}
 
     .auth-box{margin:18px 0 18px;padding:14px;border:1px solid rgba(18,104,255,.16);border-radius:18px;background:rgba(238,246,255,.7)}
@@ -766,7 +766,6 @@ function updateAuthStatus(user){
     if(login)login.style.display='none';
     if(logout)logout.style.display='block';
     setJoinEnabled(true);
-    if(!$('nicknameInput').value&&user.displayName)$('nicknameInput').value=user.displayName;
   }
   else{
     status.textContent='Google 로그인 후 가입 정보를 저장할 수 있습니다.';
