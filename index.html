@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>유일 길드 관리</title>
+  <!-- v51: current user is resolved only by Firebase auth uid. No fallback to another guild member. -->
   <style>
     :root{
       --blue:#1268ff; --deep-blue:#0747b8; --light-blue:#eef6ff;
@@ -412,7 +413,11 @@ function loadMembers(){try{const members=JSON.parse(localStorage.getItem(storage
 function saveMembers(members){localStorage.setItem(storageKey,JSON.stringify(members));queueCloudSave()}
 function activeMembersWithIndex(){return loadMembers().map((m,i)=>({m,i})).filter(x=>x.m.status!=='withdrawn')}
 function withdrawnMembersWithIndex(){return loadMembers().map((m,i)=>({m,i})).filter(x=>x.m.status==='withdrawn')}
-function currentMember(){const members=loadMembers(); if(currentUser){const mine=members.find(m=>m.uid===currentUser.uid||String(m.id)===String(currentUser.uid)); if(mine)return mine} const active=activeMembersWithIndex();return active.length?active[active.length-1].m:(members.slice(-1)[0]||null)}
+function currentMember(){
+  if(!currentUser)return null;
+  const members=loadMembers();
+  return members.find(m=>m&&m.status!=='withdrawn'&&(m.uid===currentUser.uid||String(m.id)===String(currentUser.uid)))||null;
+}
 const adminTargets=['manageSection','dragonManage','eventManage'];
 function isRepresentative(){const m=currentMember();return !!m&&m.position==='대표'}
 function applyRoleVisibility(){const admin=isRepresentative(); const homeManage=$('homeManageBlock'); if(homeManage)homeManage.style.display=(currentView==='home'&&admin)?'block':'none'; document.querySelectorAll('.menu-item').forEach(item=>{if(adminTargets.includes(item.dataset.target))item.style.display=admin?'block':'none'});}
