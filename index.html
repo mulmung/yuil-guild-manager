@@ -30,6 +30,12 @@
     .hero{margin-top:2px;padding:18px;border-radius:24px;color:#fff;background:linear-gradient(135deg,rgba(18,104,255,.96),rgba(7,71,184,.96)),radial-gradient(circle at top right,rgba(255,255,255,.34),transparent 34%);box-shadow:var(--shadow);min-height:118px;display:flex;flex-direction:column;justify-content:flex-end}.hero-main{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}.hero-text{min-width:0;flex:1}.welcome-name{margin:0 0 7px;font-size:32px;font-weight:950;letter-spacing:-1.4px;line-height:1.08}.welcome-name .name-sub{font-size:15px;font-weight:300;opacity:.86;letter-spacing:-.4px}.welcome-small{margin:0;font-size:13px;font-weight:300;opacity:.86;letter-spacing:-.2px}.promote-btn{flex:0 0 auto;border:1px solid rgba(255,255,255,.36);background:rgba(255,255,255,.16);color:#fff;border-radius:999px;padding:9px 11px;font-size:11px;font-weight:950;backdrop-filter:blur(8px)}.promote-btn:active{transform:scale(.97);background:rgba(255,255,255,.25)}.promotion-panel{margin-top:10px;border-radius:18px;background:rgba(255,255,255,.78);padding:12px 0 14px}.promotion-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 4px}.promotion-chip{border:1px solid rgba(18,104,255,.14);border-radius:14px;background:#fff;padding:10px}.promotion-chip span{display:block;color:var(--muted);font-size:11px;font-weight:800}.promotion-chip strong{display:block;margin-top:4px;color:var(--deep-blue);font-size:14px;font-weight:950}.promotion-grade-line{margin:8px 0 0;color:var(--muted);font-size:13px;font-weight:700}.promotion-grade-line strong{color:var(--deep-blue);font-weight:950}
     .home-quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.home-quick.single{grid-template-columns:1fr}.home-quick.three{grid-template-columns:repeat(3,1fr);gap:8px}.home-quick.three .home-quick-btn{font-size:13px;padding:0 6px}.home-quick-btn{height:54px;border:1px solid rgba(18,104,255,.18);border-radius:18px;background:rgba(255,255,255,.76);color:var(--deep-blue);font-size:15px;font-weight:950;box-shadow:0 10px 24px rgba(7,71,184,.08)}.home-quick-btn:active{transform:scale(.985);background:var(--light-blue)}
     .home-block{margin-top:18px}.home-block-head{display:flex;align-items:end;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px}.home-block-head h2{margin:0;font-size:18px;font-weight:950;letter-spacing:-.6px}.home-event-list{display:grid;gap:10px}.home-event-card{position:relative;overflow:hidden;min-height:124px;border:1px solid rgba(18,104,255,.16);border-radius:18px;background:rgba(255,255,255,.78);box-shadow:0 10px 24px rgba(7,71,184,.08);padding:0 15px;background-repeat:no-repeat;color:var(--text)}.home-event-card.dragon-home-card{cursor:pointer}.home-event-card.has-image{background-color:#0d1b33;color:#fff}.home-event-card.has-image:before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.42);z-index:0}.home-event-card>*{position:relative;z-index:1}.home-event-card.has-image .home-event-name{color:#fff}.home-event-card.has-image .home-event-type{color:rgba(255,255,255,.76)}.home-event-card.has-image .home-event-period{color:#fff}.home-event-name{position:absolute;left:15px;right:15px;bottom:64px;margin:0;font-size:18px;font-weight:950;letter-spacing:-.5px;color:var(--text)}.home-event-type{position:absolute;left:15px;right:15px;bottom:44px;margin:0;font-size:12px;font-weight:500;color:var(--muted)}.home-event-period{position:absolute;left:15px;right:15px;bottom:16px;margin:0;font-size:13px;font-weight:800;color:var(--deep-blue);line-height:1.35;white-space:nowrap;letter-spacing:-.35px}.home-empty{padding:16px 4px;color:var(--muted);font-size:13px;text-align:center;border-bottom:1px solid var(--line)}
+    .dragon-alert{display:none;margin-top:18px;border:1px solid rgba(18,104,255,.22);border-radius:18px;background:linear-gradient(135deg,rgba(18,104,255,.10),rgba(255,255,255,.88));box-shadow:0 10px 24px rgba(7,71,184,.08);padding:16px 16px 15px}
+    .dragon-alert.open{display:block}
+    .dragon-alert h2{margin:0 0 8px;font-size:17px;font-weight:950;letter-spacing:-.5px;color:var(--text)}
+    .dragon-alert p{margin:0;color:var(--muted);font-size:13px;font-weight:750;line-height:1.55;letter-spacing:-.35px}
+    .dragon-alert .countdown{margin-top:10px;color:var(--deep-blue);font-size:15px;font-weight:950;letter-spacing:-.3px}
+
 
     .home-event-card{cursor:pointer}
     .home-event-card .home-event-name,.home-event-card .home-event-type,.home-event-card .home-event-period{right:58px}
@@ -175,6 +181,11 @@
         <label for="promotionDate">진급일</label><input id="promotionDate" type="text" placeholder="26.06.19">
         <button class="secondary-btn" id="savePromotionBtn">진급 저장</button>
       </div>
+    <section class="dragon-alert" id="dragonTodayAlert">
+      <h2>용의 협곡 미참여 상태입니다.</h2>
+      <p>용의 협곡 참여 후 용의 협곡 화면에서 참여로 바꿔주세요.</p>
+      <div class="countdown" id="dragonTodayCountdown">남은 시간 --시간 --분 --초</div>
+    </section>
     <section class="home-block" id="homeEventBlock">
       <div class="home-block-head"><h2>현재 진행 중인 이벤트</h2></div>
       <div class="home-event-list" id="homeEventList"></div>
@@ -592,7 +603,7 @@ function currentMemberId(){const m=currentMember();return currentUser?currentUse
 function dragonEntryForDate(data,key){const raw=data[key]; if(raw&&typeof raw==='object'&&!Array.isArray(raw))return raw; if(raw===true)return {[currentMemberId()]:true}; return {}}
 function isDragonJoined(data,date,member){if(!member||!member.id)return false; const entry=dragonEntryForDate(data,dragonDateKey(date)); return entry[String(member.id)]===true}
 function dragonStatusForDate(data,d,i){if(i===0)return null; const m=currentMember(); if(!m)return false; return isDragonJoined(data,d,m)}
-function setDragonCurrentMemberStatus(dateKey,value){const data=loadDragon(); const entry=dragonEntryForDate(data,dateKey); const id=currentMemberId(); if(value)entry[id]=true; else delete entry[id]; data[dateKey]=entry; saveDragon(data)}
+function setDragonCurrentMemberStatus(dateKey,value){const data=loadDragon(); const entry=dragonEntryForDate(data,dateKey); const id=currentMemberId(); if(value)entry[id]=true; else delete entry[id]; data[dateKey]=entry; saveDragon(data); renderHomeDragonNotice()}
 function dragonWeekTable(mon,mode='current'){
   const today=new Date(); today.setHours(0,0,0,0);
   const days=['월','화','수','목','금','토','일'];
@@ -644,6 +655,7 @@ function renderDragonCanyon(resetRecordDetail=true){
   bindDragonStatusButtons(weekEl,()=>{renderDragonCanyon(false);renderDragonParticipants(false)});
   renderDragonRecords(currentWeekKey,resetRecordDetail);
   renderCurrentDragonPlacement();
+  renderHomeDragonNotice();
 }
 function setDragonCanyonTab(tab){
   const isJoin=tab==='join';
@@ -768,6 +780,42 @@ function currentDragonHomeCard(){
   };
 }
 
+
+function todayDragonAlertState(){
+  const alertEl=$('dragonTodayAlert');
+  if(!alertEl)return {show:false};
+  const member=currentMember();
+  if(!currentUser||!member||member.status==='withdrawn')return {show:false};
+  const today=new Date(); today.setHours(0,0,0,0);
+  const dayIndex=(today.getDay()+6)%7; // 월 0 ~ 일 6
+  if(dayIndex===0)return {show:false}; // 월요일 탑승은 참여 체크 없음
+  const season=dragonSeasonForDate(today);
+  if(!season)return {show:false};
+  const joined=isDragonJoined(loadDragon(),today,member);
+  if(joined)return {show:false};
+  const end=new Date(today); end.setHours(23,59,59,999);
+  const left=Math.max(0,end.getTime()-Date.now());
+  return {show:true,left};
+}
+function formatCountdown(ms){
+  const total=Math.max(0,Math.floor(ms/1000));
+  const h=Math.floor(total/3600);
+  const m=Math.floor((total%3600)/60);
+  const s=total%60;
+  return `${String(h).padStart(2,'0')}시간 ${String(m).padStart(2,'0')}분 ${String(s).padStart(2,'0')}초`;
+}
+function renderHomeDragonNotice(){
+  const alertEl=$('dragonTodayAlert');
+  const countEl=$('dragonTodayCountdown');
+  if(!alertEl||!countEl)return;
+  const state=todayDragonAlertState();
+  alertEl.classList.toggle('open',!!state.show);
+  if(state.show){
+    countEl.textContent=`남은 시간 ${formatCountdown(state.left)}`;
+    if(state.left<=0){setTimeout(()=>{renderHomeDragonNotice();renderDragonCanyon(false);renderDragonParticipants(false)},500)}
+  }
+}
+
 function renderHomeEvents(){
   const box=$('homeEventList');
   if(!box)return;
@@ -794,6 +842,7 @@ function renderHomeEvents(){
   const dragonCard=$('homeDragonCard');
   if(dragonCard)dragonCard.onclick=()=>showSection('dragonCanyon');
   box.querySelectorAll('.event-home-card').forEach(card=>card.onclick=()=>showSection('eventSection'));
+  renderHomeDragonNotice();
 }
 
 function renderEvents(){
@@ -891,10 +940,10 @@ window.addEventListener('popstate',e=>{
 function showSection(targetId,push=true){
   const fromDrawer=$('drawer')&&$('drawer').classList.contains('open');
   if(!canOpenTarget(targetId)){closeDrawer();alert('대표만 접근할 수 있는 메뉴입니다.');showHome(true,push);return}
-  closeAllOpenPanels(); currentView=targetId; $('welcomeHero').style.display='none'; $('homeEventBlock').style.display='none'; $('homeQuickBlock').style.display='none'; $('homeManageBlock').style.display='none';['myInfoSection','guildGreeting','manageSection','dragonCanyon','dragonManage','eventSection','eventManage'].forEach(id=>$(id).style.display=id===targetId?'block':'none');document.querySelectorAll('.menu-item').forEach(item=>item.classList.toggle('active',item.dataset.target===targetId)); if(targetId==='manageSection'){setManageTab('active')}else if(targetId==='dragonCanyon'){setDragonCanyonTab('join');renderTable();renderManageTable();renderWithdrawTable()}else if(targetId==='dragonManage'){setDragonManageTab('season');renderDragonCanyon(false);renderTable();renderManageTable();renderWithdrawTable();renderEvents()}else if(targetId==='eventSection'||targetId==='eventManage'){renderEvents();renderTable();renderManageTable();renderWithdrawTable();renderMyInfo()}else{renderMyInfo();renderTable();renderManageTable();renderWithdrawTable();renderEvents()} renderMyInfo(); applyRoleVisibility(); closeDrawer(); if(push)pushViewState(targetId,fromDrawer); window.scrollTo({top:0,behavior:'smooth'})}
+  closeAllOpenPanels(); currentView=targetId; $('welcomeHero').style.display='none'; if($('dragonTodayAlert')){$('dragonTodayAlert').classList.remove('open');$('dragonTodayAlert').style.display='none'} $('homeEventBlock').style.display='none'; $('homeQuickBlock').style.display='none'; $('homeManageBlock').style.display='none';['myInfoSection','guildGreeting','manageSection','dragonCanyon','dragonManage','eventSection','eventManage'].forEach(id=>$(id).style.display=id===targetId?'block':'none');document.querySelectorAll('.menu-item').forEach(item=>item.classList.toggle('active',item.dataset.target===targetId)); if(targetId==='manageSection'){setManageTab('active')}else if(targetId==='dragonCanyon'){setDragonCanyonTab('join');renderTable();renderManageTable();renderWithdrawTable()}else if(targetId==='dragonManage'){setDragonManageTab('season');renderDragonCanyon(false);renderTable();renderManageTable();renderWithdrawTable();renderEvents()}else if(targetId==='eventSection'||targetId==='eventManage'){renderEvents();renderTable();renderManageTable();renderWithdrawTable();renderMyInfo()}else{renderMyInfo();renderTable();renderManageTable();renderWithdrawTable();renderEvents()} renderMyInfo(); applyRoleVisibility(); closeDrawer(); if(push)pushViewState(targetId,fromDrawer); window.scrollTo({top:0,behavior:'smooth'})}
 function showHome(doRender=true,push=true){
   const fromDrawer=$('drawer')&&$('drawer').classList.contains('open');
-  closeAllOpenPanels(); currentView='home'; $('welcomeHero').style.display='flex'; $('homeEventBlock').style.display='block'; $('homeQuickBlock').style.display='block'; $('homeManageBlock').style.display=isRepresentative()?'block':'none';['myInfoSection','guildGreeting','manageSection','dragonCanyon','dragonManage','eventSection','eventManage'].forEach(id=>$(id).style.display='none');document.querySelectorAll('.menu-item').forEach(item=>item.classList.remove('active'));renderHomeEvents();if(doRender)refreshAll(false);applyRoleVisibility();closeDrawer(); if(push)pushViewState('home',fromDrawer); window.scrollTo({top:0,behavior:'smooth'})}
+  closeAllOpenPanels(); currentView='home'; $('welcomeHero').style.display='flex'; if($('dragonTodayAlert'))$('dragonTodayAlert').style.display='block'; $('homeEventBlock').style.display='block'; $('homeQuickBlock').style.display='block'; $('homeManageBlock').style.display=isRepresentative()?'block':'none';['myInfoSection','guildGreeting','manageSection','dragonCanyon','dragonManage','eventSection','eventManage'].forEach(id=>$(id).style.display='none');document.querySelectorAll('.menu-item').forEach(item=>item.classList.remove('active'));renderHomeEvents();if(doRender)refreshAll(false);applyRoleVisibility();closeDrawer(); if(push)pushViewState('home',fromDrawer); window.scrollTo({top:0,behavior:'smooth'})}
 fillRanks($('rankSelect'));fillRanks($('editRank'));fillRanks($('newHistoryRank'));fillGrades($('editGrade'));fillPositions($('editPosition'));fillEventTypes($('eventType'));
 $('googleLoginBtn').onclick=signInGoogle; $('googleLogoutBtn').onclick=logOutGoogle;
 $('editGrade').onchange=()=>{$('editRank').value=rankFromGrade($('editGrade').value)}; $('editRank').onchange=()=>{$('editGrade').value=gradeFromRank($('editRank').value)}; $('newHistoryRank').onchange=updateNewHistoryGrade;
@@ -924,6 +973,7 @@ if($('dragonSeasonImageInput'))$('dragonSeasonImageInput').onchange=e=>{const fi
 if($('removeEventImageBtn'))$('removeEventImageBtn').onclick=()=>resetEventImage();
 if($('eventImageInput'))$('eventImageInput').onchange=e=>{const file=e.target.files&&e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=()=>{const img=new Image(); img.onload=()=>{const max=1200; let w=img.width,h=img.height; const scale=Math.min(1,max/Math.max(w,h)); w=Math.round(w*scale); h=Math.round(h*scale); const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h; const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,w,h); eventImageData=canvas.toDataURL('image/jpeg',.86); updateEventImagePreview()}; img.src=reader.result}; reader.readAsDataURL(file)};
 updateEventImagePreview();
+setInterval(()=>{if(currentView==='home')renderHomeDragonNotice()},1000);
 initFirebaseAuth();
 </script>
 </body>
