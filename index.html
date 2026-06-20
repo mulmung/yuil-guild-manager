@@ -17,6 +17,12 @@
     .screen{display:none;min-height:100vh;padding:14px 14px 24px}.screen.active{display:block}
     .join-wrap{display:flex;min-height:100vh;align-items:center;justify-content:center;padding:28px 18px}.join-card{width:100%;border-radius:30px;background:rgba(255,255,255,.92);box-shadow:var(--shadow);padding:28px 20px 22px;border:1px solid rgba(18,104,255,.12)}
     .badge{width:fit-content;padding:7px 12px;border-radius:999px;background:var(--light-blue);color:var(--deep-blue);font-size:11px;font-weight:900}.join-title{margin:18px 0 6px;font-size:30px;line-height:1.15;font-weight:950;letter-spacing:-1.2px}.join-desc{margin:0 0 26px;color:var(--muted);font-size:14px;line-height:1.55}
+
+    .auth-box{margin:18px 0 18px;padding:14px;border:1px solid rgba(18,104,255,.16);border-radius:18px;background:rgba(238,246,255,.7)}
+    .auth-status{margin:0 0 10px;color:var(--muted);font-size:13px;font-weight:750;line-height:1.45}.auth-status strong{color:var(--deep-blue);font-weight:950}
+    .google-btn{width:100%;height:48px;border-radius:14px;border:1px solid rgba(18,104,255,.18);background:#fff;color:var(--deep-blue);font-size:14px;font-weight:950;box-shadow:0 8px 18px rgba(7,71,184,.06)}
+    .google-btn.secondary{margin-top:8px;color:var(--muted);font-size:12px;height:42px}
+    .cloud-note{margin:8px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
     label{display:block;margin:16px 0 8px;color:var(--deep-blue);font-size:11px;font-weight:900} input,select{width:100%;height:52px;border:1px solid rgba(18,104,255,.22);border-radius:16px;background:#fff;padding:0 15px;color:var(--text);font-size:16px;outline:none} select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--blue) 50%),linear-gradient(135deg,var(--blue) 50%,transparent 50%);background-position:calc(100% - 21px) 22px,calc(100% - 15px) 22px;background-size:6px 6px,6px 6px;background-repeat:no-repeat} input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(18,104,255,.1)}
     .primary-btn,.secondary-btn{width:100%;height:52px;border-radius:16px;font-size:15px;font-weight:950}.primary-btn{margin-top:24px;border:0;background:linear-gradient(135deg,var(--blue),var(--deep-blue));color:#fff;box-shadow:0 14px 26px rgba(18,104,255,.24)}.secondary-btn{margin-top:14px;border:1px solid rgba(18,104,255,.18);background:#fff;color:var(--deep-blue)}
     .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:2px 0 12px}.guild-title{margin:0;color:var(--deep-blue);font-size:23px;font-weight:950;letter-spacing:-.9px}.icon-row{display:flex;gap:8px}.icon-btn{width:38px;height:38px;border:0;border-radius:50%;background:rgba(255,255,255,.72);color:var(--deep-blue);display:grid;place-items:center;box-shadow:0 8px 22px rgba(7,71,184,.08)}.icon-btn svg{width:21px;height:21px;stroke-width:2.25}
@@ -135,6 +141,12 @@
       <div class="badge">YUIL GUILD</div>
       <h1 class="join-title">유일 길드<br>가입하기</h1>
       <p class="join-desc">닉네임과 현재 승급을 입력하면 직급이 자동 적용됩니다.</p>
+      <div class="auth-box" id="authBox">
+        <p class="auth-status" id="authStatus">Google 로그인 후 가입 정보를 저장할 수 있습니다.</p>
+        <button class="google-btn" id="googleLoginBtn" type="button">Google 로그인</button>
+        <button class="google-btn secondary" id="googleLogoutBtn" type="button" style="display:none">로그아웃</button>
+        <p class="cloud-note">길드 정보는 Firebase Firestore에 저장됩니다. 이미지는 Storage 연결 전까지 이 기기에만 임시 저장됩니다.</p>
+      </div>
       <label for="nicknameInput">닉네임</label><input id="nicknameInput" type="text" placeholder="닉네임을 입력하세요" autocomplete="off">
       <label for="rankSelect">승급</label><select id="rankSelect"></select>
       <button class="primary-btn" id="joinBtn">가입하기</button>
@@ -307,7 +319,21 @@
   </section>
 </main>
 <div class="drawer-backdrop" id="drawerBackdrop"></div><aside class="drawer" id="drawer"><div class="drawer-head"><strong>메뉴</strong><button class="close-btn" id="closeDrawerBtn" aria-label="닫기">×</button></div><nav class="menu-list"><button class="menu-item" data-target="guildGreeting">길드 인사</button><button class="menu-item" data-target="manageSection">인사 관리</button><button class="menu-item" data-target="dragonCanyon">용의 협곡</button><button class="menu-item" data-target="dragonManage">용의 협곡 관리</button><button class="menu-item" data-target="eventSection">이벤트</button><button class="menu-item" data-target="eventManage">이벤트 관리</button></nav></aside>
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+const firebaseConfig={apiKey:"AIzaSyDkInz0NlaXn6SMgLTqPJgsExCjKRpAlyw",authDomain:"yuil-guild-manager.firebaseapp.com",projectId:"yuil-guild-manager",storageBucket:"yuil-guild-manager.firebasestorage.app",messagingSenderId:"561877729454",appId:"1:561877729454:web:cb3a8299abeec1a7782d3f"};
+const firebaseApp=initializeApp(firebaseConfig);
+const auth=getAuth(firebaseApp);
+const db=getFirestore(firebaseApp);
+const provider=new GoogleAuthProvider();
+const appStateRef=doc(db,'guilds','yuil','app','state');
+let currentUser=null;
+let cloudReady=false;
+let cloudSaveTimer=null;
+
 const rankList=['스톤','브론즈','아이언','실버','골드','미스릴','오리하르콘','아케이나이트','아다만타이트','에테르','블랙미스릴','데몬메탈','드라고노스','라그나블러드','워프로스트','다크녹스','블루어비스','인피넌트','사이클로스','에이션트케나인','기가로크','아이젠하르트','다이아더스트','엘든우드','블리츠골드'];
 const gradeList=['인턴','사원','주임','대리','과장','차장','부장','팀장','실장','이사','상무','전무','사장'];
 const positionList=['대표','부대표','사원'];
@@ -327,11 +353,60 @@ function normalizeMember(m){if(!m)return m; if(!rankList.includes(m.rank))m.rank
 function ensureHistory(m){if(!Array.isArray(m.history))m.history=[]; if(!m.history.length)m.history.push({date:m.joinDate||todayText(),rank:m.rank||'라그나블러드',grade:gradeFromRank(m.rank||'라그나블러드')}); m.history=m.history.filter(h=>h&&h.rank&&rankList.includes(h.rank)).map(h=>({date:h.date||todayText(),rank:h.rank,grade:gradeFromRank(h.rank)})); sortPromotionHistory(m); return m}
 function ensureMemberHistory(m){if(!Array.isArray(m.memberHistory))m.memberHistory=[]; if(!m.memberHistory.length){m.memberHistory.push({type:'가입',date:m.joinDate||todayText()}); if(m.withdrawDate)m.memberHistory.push({type:'탈퇴',date:m.withdrawDate})} m.memberHistory=m.memberHistory.filter(h=>h&&['가입','탈퇴','복귀'].includes(h.type)).map(h=>({type:h.type,date:h.date||todayText()})); return m}
 function latestJoinDate(m){ensureMemberHistory(m); const joins=m.memberHistory.filter(h=>h.type==='가입'||h.type==='복귀'); return (joins.length?joins[joins.length-1].date:m.joinDate)||todayText()}
+function stripImageData(value){
+  if(Array.isArray(value))return value.map(stripImageData);
+  if(value&&typeof value==='object'){const out={}; Object.entries(value).forEach(([k,v])=>{if(v===undefined)return; out[k]=k==='imageData'?'':stripImageData(v)}); return out}
+  return value;
+}
+function mergeLocalImages(cloudList,localList){
+  const localMap=new Map((localList||[]).map(x=>[String(x.id),x]));
+  return (cloudList||[]).map(item=>{const local=localMap.get(String(item.id)); return local&&local.imageData&&!item.imageData?{...item,imageData:local.imageData}:item})
+}
+function localStateSnapshot(){
+  return {
+    members: JSON.parse(localStorage.getItem(storageKey)||'[]'),
+    dragon: JSON.parse(localStorage.getItem(dragonStorageKey)||'{}'),
+    dragonSeasons: JSON.parse(localStorage.getItem(dragonSeasonStorageKey)||'[]'),
+    dragonPlacements: JSON.parse(localStorage.getItem(dragonPlacementStorageKey)||'[]'),
+    events: JSON.parse(localStorage.getItem(eventStorageKey)||'[]')
+  };
+}
+async function saveCloudStateNow(){
+  if(!currentUser||!cloudReady)return;
+  try{await setDoc(appStateRef,{...stripImageData(localStateSnapshot()),updatedAt:serverTimestamp(),updatedBy:currentUser.uid},{merge:true})}
+  catch(err){console.warn('Firestore 저장 실패:',err);}
+}
+function queueCloudSave(){
+  if(!currentUser||!cloudReady)return;
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer=setTimeout(saveCloudStateNow,450);
+}
+async function loadCloudState(){
+  if(!currentUser)return;
+  cloudReady=false;
+  try{
+    const snap=await getDoc(appStateRef);
+    if(snap.exists()){
+      const data=snap.data()||{};
+      const local=localStateSnapshot();
+      localStorage.setItem(storageKey,JSON.stringify(data.members||[]));
+      localStorage.setItem(dragonStorageKey,JSON.stringify(data.dragon||{}));
+      localStorage.setItem(dragonSeasonStorageKey,JSON.stringify(mergeLocalImages(data.dragonSeasons||[],local.dragonSeasons||[])));
+      localStorage.setItem(dragonPlacementStorageKey,JSON.stringify(data.dragonPlacements||[]));
+      localStorage.setItem(eventStorageKey,JSON.stringify(mergeLocalImages(data.events||[],local.events||[])));
+    }else{
+      cloudReady=true;
+      await saveCloudStateNow();
+      return;
+    }
+  }catch(err){console.warn('Firestore 불러오기 실패:',err); alert('Firestore 데이터를 불러오지 못했습니다. 네트워크를 확인해주세요.')}
+  cloudReady=true;
+}
 function loadMembers(){try{const members=JSON.parse(localStorage.getItem(storageKey))||[]; let changed=false; members.forEach(m=>{const before=JSON.stringify(m); normalizeMember(m); if(before!==JSON.stringify(m))changed=true}); if(changed)saveMembers(members); return members}catch{return[]}}
-function saveMembers(members){localStorage.setItem(storageKey,JSON.stringify(members))}
+function saveMembers(members){localStorage.setItem(storageKey,JSON.stringify(members));queueCloudSave()}
 function activeMembersWithIndex(){return loadMembers().map((m,i)=>({m,i})).filter(x=>x.m.status!=='withdrawn')}
 function withdrawnMembersWithIndex(){return loadMembers().map((m,i)=>({m,i})).filter(x=>x.m.status==='withdrawn')}
-function currentMember(){const active=activeMembersWithIndex();return active.length?active[active.length-1].m:(loadMembers().slice(-1)[0]||null)}
+function currentMember(){const members=loadMembers(); if(currentUser){const mine=members.find(m=>m.uid===currentUser.uid||String(m.id)===String(currentUser.uid)); if(mine)return mine} const active=activeMembersWithIndex();return active.length?active[active.length-1].m:(members.slice(-1)[0]||null)}
 const adminTargets=['manageSection','dragonManage','eventManage'];
 function isRepresentative(){const m=currentMember();return !!m&&m.position==='대표'}
 function applyRoleVisibility(){const admin=isRepresentative(); const homeManage=$('homeManageBlock'); if(homeManage)homeManage.style.display=(currentView==='home'&&admin)?'block':'none'; document.querySelectorAll('.menu-item').forEach(item=>{if(adminTargets.includes(item.dataset.target))item.style.display=admin?'block':'none'});}
@@ -421,7 +496,7 @@ function dragonDateKey(date){return `${date.getFullYear()}-${String(date.getMont
 function dragonParseDate(key){const [y,m,d]=key.split('-').map(Number);const date=new Date(y,m-1,d);date.setHours(0,0,0,0);return date}
 function dragonWeekKeyFromMonday(mon){return dragonDateKey(mon)}
 function loadDragon(){try{return JSON.parse(localStorage.getItem(dragonStorageKey)||'{}')}catch(e){return {}}}
-function saveDragon(data){localStorage.setItem(dragonStorageKey,JSON.stringify(data))}
+function saveDragon(data){localStorage.setItem(dragonStorageKey,JSON.stringify(data));queueCloudSave()}
 function dragonWeekDates(mon){return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d})}
 function parseDragonAnyDate(v){
   if(!v)return null; const s=String(v).trim();
@@ -431,7 +506,7 @@ function parseDragonAnyDate(v){
 }
 function displayDragonDate(key){if(!key)return ''; const d=dragonParseDate(key); return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`}
 function loadDragonSeasons(){try{return JSON.parse(localStorage.getItem(dragonSeasonStorageKey)||'[]').filter(s=>s&&s.season&&s.start&&s.end).sort((a,b)=>dragonParseDate(b.start)-dragonParseDate(a.start))}catch(e){return []}}
-function saveDragonSeasons(list){localStorage.setItem(dragonSeasonStorageKey,JSON.stringify(list))}
+function saveDragonSeasons(list){localStorage.setItem(dragonSeasonStorageKey,JSON.stringify(list));queueCloudSave()}
 function dragonSeasonForDate(date){const key=dragonDateKey(date); return loadDragonSeasons().find(s=>s.start<=key&&key<=s.end)||null}
 function dragonWeekLabel(mon){
   const season=dragonSeasonForDate(mon)||dragonSeasonForDate(new Date(mon.getTime()+3*86400000));
@@ -454,7 +529,7 @@ function syncDragonWeekLabels(){
   const label=currentDragonWeekLabel();
   ['dragonWeekLabel','dragonParticipantWeekLabel','dragonCurrentPlacementLabel'].forEach(id=>{const el=$(id); if(el)el.textContent=label});
 }
-function currentMemberId(){const m=currentMember();return m&&m.id?String(m.id):'guest'}
+function currentMemberId(){const m=currentMember();return currentUser?currentUser.uid:(m&&m.id?String(m.id):'guest')}
 function dragonEntryForDate(data,key){const raw=data[key]; if(raw&&typeof raw==='object'&&!Array.isArray(raw))return raw; if(raw===true)return {[currentMemberId()]:true}; return {}}
 function isDragonJoined(data,date,member){if(!member||!member.id)return false; const entry=dragonEntryForDate(data,dragonDateKey(date)); return entry[String(member.id)]===true}
 function dragonStatusForDate(data,d,i){if(i===0)return null; const m=currentMember(); if(!m)return false; return isDragonJoined(data,d,m)}
@@ -576,7 +651,7 @@ const dragonTeamNames=['용암 산맥','황무지 고원','바람 절벽','얼�
 let currentPlacementPreview=null;
 function rankScore(rank){const idx=rankList.indexOf(rank); return idx>=0?idx+1:1}
 function loadDragonPlacements(){try{return JSON.parse(localStorage.getItem(dragonPlacementStorageKey)||'[]').filter(p=>p&&p.id&&p.season&&p.week&&p.teams).sort((a,b)=>String(b.id).localeCompare(String(a.id)))}catch(e){return []}}
-function saveDragonPlacements(list){localStorage.setItem(dragonPlacementStorageKey,JSON.stringify(list))}
+function saveDragonPlacements(list){localStorage.setItem(dragonPlacementStorageKey,JSON.stringify(list));queueCloudSave()}
 function getSeasonWeeks(season){if(!season)return []; const start=dragonParseDate(season.start), end=dragonParseDate(season.end); const startMon=mondayOfWeek(start); const weeks=[]; let n=1; for(let d=new Date(startMon); d<=end; d.setDate(d.getDate()+7),n++){const mon=new Date(d); weeks.push({week:n,key:dragonWeekKeyFromMonday(mon),label:`${n}주차`})} return weeks}
 function fillPlacementSeasons(){const select=$('dragonPlacementSeason'); if(!select)return; const seasons=loadDragonSeasons(); select.innerHTML=seasons.length?seasons.map(s=>`<option value="${s.id}">${s.season}시즌</option>`).join(''):'<option value="">등록된 시즌 없음</option>'; fillPlacementWeeks()}
 function fillPlacementWeeks(){const sId=$('dragonPlacementSeason')?.value; const season=loadDragonSeasons().find(s=>String(s.id)===String(sId)); const weekSelect=$('dragonPlacementWeek'); if(!weekSelect)return; const weeks=getSeasonWeeks(season); weekSelect.innerHTML=weeks.length?weeks.map(w=>`<option value="${w.week}">${w.label}</option>`).join(''):'<option value="">주차 없음</option>'}
@@ -607,7 +682,7 @@ const eventTypeList=['이벤트','시즌 스킬','테마 던전','신년 이벤�
 let editingEventId=null,eventImageData='',eventImageX=50,eventImageY=50,eventImageZoom=130;
 function fillEventTypes(el){if(el)el.innerHTML=eventTypeList.map(t=>`<option value="${t}">${t}</option>`).join('')}
 function loadEvents(){try{return JSON.parse(localStorage.getItem(eventStorageKey)||'[]').filter(e=>e&&e.type&&e.name&&e.start&&e.end).sort((a,b)=>dragonParseDate(b.start)-dragonParseDate(a.start))}catch(e){return []}}
-function saveEvents(list){localStorage.setItem(eventStorageKey,JSON.stringify(list))}
+function saveEvents(list){localStorage.setItem(eventStorageKey,JSON.stringify(list));queueCloudSave()}
 function eventImageStyle(e){return e&&e.imageData?`background-image:url('${e.imageData}');background-size:${e.imageZoom||130}%;background-position:${e.imageX??50}% ${e.imageY??50}%;`:''}
 function updateEventImagePreview(){const prev=$('eventImagePreview'); if(!prev)return; prev.classList.toggle('has-image',!!eventImageData); prev.style.backgroundImage=eventImageData?`url('${eventImageData}')`:''; prev.style.backgroundSize=`${eventImageZoom}%`; prev.style.backgroundPosition=`${eventImageX}% ${eventImageY}%`; prev.innerHTML=`<span class="preview-text">${eventImageData?'카드에 보일 영역을 조절해주세요.':'이미지를 올리면 홈 이벤트 카드 배경으로 표시됩니다.'}</span>`}
 function resetEventImage(){eventImageData='';eventImageX=50;eventImageY=50;eventImageZoom=130; if($('eventImageInput'))$('eventImageInput').value=''; if($('eventImageX'))$('eventImageX').value=50; if($('eventImageY'))$('eventImageY').value=50; if($('eventImageZoom'))$('eventImageZoom').value=130; updateEventImagePreview()}
@@ -679,6 +754,26 @@ function editEvent(id){const e=loadEvents().find(x=>String(x.id)===String(id)); 
 function saveEvent(){const type=$('eventType').value; const name=$('eventName').value.trim(); const start=parseDragonAnyDate($('eventStart').value); const startTime=$('eventStartTime').value; const end=parseDragonAnyDate($('eventEnd').value); const endTime=$('eventEndTime').value; if(!type||!name||!start||!startTime||!end||!endTime){alert('이벤트 종류, 이름, 시작일, 시작 시간, 종료일, 종료 시간을 모두 입력해주세요.');return} let list=loadEvents(); const item={id:editingEventId||Date.now(),type,name,start,startTime,end,endTime,imageData:eventImageData,imageX:eventImageX,imageY:eventImageY,imageZoom:eventImageZoom}; if(editingEventId)list=list.map(e=>String(e.id)===String(editingEventId)?item:e); else list.push(item); saveEvents(list); resetEventForm(); $('eventForm').classList.remove('open'); renderEvents();}
 function deleteEvent(id){if(!confirm('이 이벤트를 삭제하시겠습니까?'))return; saveEvents(loadEvents().filter(e=>String(e.id)!==String(id))); renderEvents()}
 
+function setJoinEnabled(enabled){['nicknameInput','rankSelect','joinBtn'].forEach(id=>{const el=$(id); if(el)el.disabled=!enabled})}
+function updateAuthStatus(user){
+  const status=$('authStatus'),login=$('googleLoginBtn'),logout=$('googleLogoutBtn');
+  if(!status)return;
+  if(user){status.innerHTML=`<strong>${user.displayName||user.email||'Google 계정'}</strong>으로 로그인되었습니다.`; if(login)login.style.display='none'; if(logout)logout.style.display='block'; setJoinEnabled(true); if(!$('nicknameInput').value&&user.displayName)$('nicknameInput').value=user.displayName}
+  else{status.textContent='Google 로그인 후 가입 정보를 저장할 수 있습니다.'; if(login)login.style.display='block'; if(logout)logout.style.display='none'; setJoinEnabled(false)}
+}
+async function signInGoogle(){try{await signInWithPopup(auth,provider)}catch(err){console.warn('팝업 로그인 실패, 리디렉션 시도:',err); try{await signInWithRedirect(auth,provider)}catch(e){alert('Google 로그인에 실패했습니다. 다시 시도해주세요.')}}}
+async function logOutGoogle(){if(!confirm('로그아웃하시겠습니까?'))return; await signOut(auth); location.reload()}
+async function initFirebaseAuth(){
+  setJoinEnabled(false);
+  onAuthStateChanged(auth,async user=>{
+    currentUser=user; updateAuthStatus(user);
+    if(!user){$('joinScreen').classList.add('active');$('mainScreen').classList.remove('active');return}
+    await loadCloudState();
+    const existing=currentMember();
+    if(existing){showMain(existing)}
+    else{$('joinScreen').classList.add('active');$('mainScreen').classList.remove('active')}
+  });
+}
 function showMain(m){$('joinScreen').classList.remove('active');$('mainScreen').classList.add('active');showHome(false,false);pushViewState('home',true);renderCurrentUser(m)}
 let currentView='home';
 function openDrawer(){
@@ -714,9 +809,10 @@ function showHome(doRender=true,push=true){
   const fromDrawer=$('drawer')&&$('drawer').classList.contains('open');
   closeAllOpenPanels(); currentView='home'; $('welcomeHero').style.display='flex'; $('homeEventBlock').style.display='block'; $('homeQuickBlock').style.display='block'; $('homeManageBlock').style.display=isRepresentative()?'block':'none';['guildGreeting','manageSection','dragonCanyon','dragonManage','eventSection','eventManage'].forEach(id=>$(id).style.display='none');document.querySelectorAll('.menu-item').forEach(item=>item.classList.remove('active'));renderHomeEvents();if(doRender)refreshAll(false);applyRoleVisibility();closeDrawer(); if(push)pushViewState('home',fromDrawer); window.scrollTo({top:0,behavior:'smooth'})}
 fillRanks($('rankSelect'));fillRanks($('editRank'));fillRanks($('newHistoryRank'));fillGrades($('editGrade'));fillPositions($('editPosition'));fillEventTypes($('eventType'));
+$('googleLoginBtn').onclick=signInGoogle; $('googleLogoutBtn').onclick=logOutGoogle;
 $('editGrade').onchange=()=>{$('editRank').value=rankFromGrade($('editGrade').value)}; $('editRank').onchange=()=>{$('editGrade').value=gradeFromRank($('editRank').value)}; $('newHistoryRank').onchange=updateNewHistoryGrade;
 $('promoteBtn').onclick=openPromotionPanel; $('closePromotionBtn').onclick=()=>$('promotionPanel').classList.remove('open'); $('savePromotionBtn').onclick=savePromotion;
-$('joinBtn').onclick=()=>{const nickname=$('nicknameInput').value.trim();const rank=$('rankSelect').value;const grade=gradeFromRank(rank);if(!nickname){alert('닉네임을 입력해주세요.');$('nicknameInput').focus();return} const members=loadMembers();const now=todayText();const member={id:Date.now(),nickname,position:'사원',grade,rank,joinDate:now,history:[{date:now,grade,rank}],memberHistory:[{type:'가입',date:now}]};members.push(member);saveMembers(members);showMain(member)};
+$('joinBtn').onclick=async()=>{if(!currentUser){alert('Google 로그인 후 가입할 수 있습니다.');return} const nickname=$('nicknameInput').value.trim();const rank=$('rankSelect').value;const grade=gradeFromRank(rank);if(!nickname){alert('닉네임을 입력해주세요.');$('nicknameInput').focus();return} const members=loadMembers().filter(m=>!(m.uid===currentUser.uid||String(m.id)===String(currentUser.uid)));const now=todayText();const member={id:currentUser.uid,uid:currentUser.uid,email:currentUser.email||'',nickname,position:'사원',grade,rank,joinDate:now,status:'active',history:[{date:now,grade,rank}],memberHistory:[{type:'가입',date:now}]};members.push(member);saveMembers(members);await saveCloudStateNow();showMain(member)};
 document.querySelectorAll('.page-back').forEach(btn=>btn.onclick=goBack);$('menuBtn').onclick=openDrawer;$('closeDrawerBtn').onclick=closeDrawer;$('drawerBackdrop').onclick=closeDrawer;$('homeBtn').onclick=()=>showHome(true);$('quickGuildBtn').onclick=()=>showSection('guildGreeting');$('quickManageBtn').onclick=()=>showSection('manageSection');$('quickDragonManageBtn').onclick=()=>showSection('dragonManage');$('quickEventManageBtn').onclick=()=>showSection('eventManage');document.querySelectorAll('.menu-item').forEach(item=>item.onclick=()=>showSection(item.dataset.target));$('activeTabBtn').onclick=()=>setManageTab('active');$('withdrawTabBtn').onclick=()=>setManageTab('withdraw');$('dragonCanyonJoinTabBtn').onclick=()=>setDragonCanyonTab('join');$('dragonCanyonPlacementTabBtn').onclick=()=>setDragonCanyonTab('placement');$('dragonSeasonTabBtn').onclick=()=>setDragonManageTab('season');$('dragonParticipantTabBtn').onclick=()=>setDragonManageTab('participant');$('dragonPlacementTabBtn').onclick=()=>setDragonManageTab('placement');$('addDragonSeasonBtn').onclick=()=>{$('dragonSeasonForm').classList.toggle('open'); if(!$('dragonSeasonForm').classList.contains('open'))resetDragonSeasonForm()};$('saveDragonSeasonBtn').onclick=saveDragonSeason;$('addDragonPlacementBtn').onclick=()=>{$('dragonPlacementForm').classList.toggle('open');if($('dragonPlacementForm').classList.contains('open'))resetDragonPlacementForm();else resetDragonPlacementForm()};$('dragonPlacementSeason').onchange=fillPlacementWeeks;$('autoDragonPlacementBtn').onclick=autoDragonPlacement;$('closeEditBtn').onclick=()=>{$('editPanel').style.display='none';editingMemberIndex=null};$('closeWithdrawViewBtn').onclick=()=>{$('withdrawViewPanel').style.display='none'};$('saveManageBtn').onclick=saveBasicInfo;$('addHistoryBtn').onclick=()=>{$('addHistoryForm').classList.toggle('open')};$('saveNewHistoryBtn').onclick=addHistory;$('addMemberHistoryBtn').onclick=()=>{$('addMemberHistoryForm').classList.toggle('open')};$('saveNewMemberHistoryBtn').onclick=addMemberHistory;$('addEventBtn').onclick=()=>{$('eventForm').classList.toggle('open');if(!$('eventForm').classList.contains('open'))resetEventForm()};$('saveEventBtn').onclick=saveEvent;
 
 ['dragonSeasonImageX','dragonSeasonImageY','dragonSeasonImageZoom'].forEach(id=>{const el=$(id); if(el)el.oninput=()=>{dragonSeasonImageX=Number($('dragonSeasonImageX').value); dragonSeasonImageY=Number($('dragonSeasonImageY').value); dragonSeasonImageZoom=Number($('dragonSeasonImageZoom').value); updateDragonSeasonImagePreview()}});
@@ -726,7 +822,7 @@ if($('dragonSeasonImageInput'))$('dragonSeasonImageInput').onchange=e=>{const fi
 if($('removeEventImageBtn'))$('removeEventImageBtn').onclick=()=>resetEventImage();
 if($('eventImageInput'))$('eventImageInput').onchange=e=>{const file=e.target.files&&e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=()=>{const img=new Image(); img.onload=()=>{const max=1200; let w=img.width,h=img.height; const scale=Math.min(1,max/Math.max(w,h)); w=Math.round(w*scale); h=Math.round(h*scale); const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h; const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,w,h); eventImageData=canvas.toDataURL('image/jpeg',.86); updateEventImagePreview()}; img.src=reader.result}; reader.readAsDataURL(file)};
 updateEventImagePreview();
-const existing=currentMember(); if(existing){showMain(existing)}
+initFirebaseAuth();
 </script>
 </body>
 </html>
