@@ -282,14 +282,14 @@
           <label for="dragonSeasonEnd">종료일</label><input id="dragonSeasonEnd" type="text" placeholder="2026-07-12 또는 26.07.12">
           <div class="image-tool">
             <label for="dragonSeasonImageInput">용의 협곡 카드 이미지</label><input id="dragonSeasonImageInput" type="file" accept="image/*">
-            <div id="dragonSeasonImagePreview" class="event-image-preview"><span class="preview-text">이미지를 올리면 홈 용의 협곡 카드 배경으로 표시됩니다.</span></div>
+            <div id="dragonSeasonImagePreview" class="event-image-preview"><span class="preview-text">이미지를 올리면 Firebase Storage에 저장되어 모두에게 표시됩니다.</span></div>
             <div class="range-grid">
               <label>확대/축소<input id="dragonSeasonImageZoom" type="range" min="100" max="260" value="130"></label>
               <label>가로 위치<input id="dragonSeasonImageX" type="range" min="0" max="100" value="50"></label>
               <label>세로 위치<input id="dragonSeasonImageY" type="range" min="0" max="100" value="50"></label>
             </div>
             <div class="image-actions"><button type="button" class="text-btn danger-btn" id="removeDragonSeasonImageBtn">이미지 제거</button></div>
-            <p class="small-note">업로드 후 확대/축소와 위치를 조절하면 홈 카드에 보일 영역을 맞출 수 있습니다.</p>
+            <p class="small-note">업로드 후 확대/축소와 위치를 조절하면 홈 카드에 보일 영역을 맞출 수 있습니다. 이미지는 Firebase Storage에 저장됩니다.</p>
           </div>
           <button class="secondary-btn" id="saveDragonSeasonBtn">시즌 저장</button>
         </div>
@@ -331,14 +331,14 @@
         <label for="eventEndTime">종료 시간</label><input id="eventEndTime" type="time">
         <div class="image-tool">
           <label for="eventImageInput">이벤트 카드 이미지</label><input id="eventImageInput" type="file" accept="image/*">
-          <div id="eventImagePreview" class="event-image-preview"><span class="preview-text">이미지를 올리면 홈 이벤트 카드 배경으로 표시됩니다.</span></div>
+          <div id="eventImagePreview" class="event-image-preview"><span class="preview-text">이미지를 올리면 Firebase Storage에 저장되어 모두에게 표시됩니다.</span></div>
           <div class="range-grid">
             <label>확대/축소<input id="eventImageZoom" type="range" min="100" max="260" value="130"></label>
             <label>가로 위치<input id="eventImageX" type="range" min="0" max="100" value="50"></label>
             <label>세로 위치<input id="eventImageY" type="range" min="0" max="100" value="50"></label>
           </div>
           <div class="image-actions"><button type="button" class="text-btn danger-btn" id="removeEventImageBtn">이미지 제거</button></div>
-          <p class="small-note">업로드 후 확대/축소와 위치를 조절하면 홈 카드에 보일 영역을 맞출 수 있습니다.</p>
+          <p class="small-note">업로드 후 확대/축소와 위치를 조절하면 홈 카드에 보일 영역을 맞출 수 있습니다. 이미지는 Firebase Storage에 저장됩니다.</p>
         </div>
         <button class="secondary-btn" id="saveEventBtn">이벤트 저장</button>
       </div>
@@ -351,11 +351,13 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
 
 const firebaseConfig={apiKey:"AIzaSyDkInz0NlaXn6SMgLTqPJgsExCjKRpAlyw",authDomain:"yuil-guild-manager.firebaseapp.com",projectId:"yuil-guild-manager",storageBucket:"yuil-guild-manager.firebasestorage.app",messagingSenderId:"561877729454",appId:"1:561877729454:web:cb3a8299abeec1a7782d3f"};
 const firebaseApp=initializeApp(firebaseConfig);
 const auth=getAuth(firebaseApp);
 const db=getFirestore(firebaseApp);
+const storage=getStorage(firebaseApp);
 const provider=new GoogleAuthProvider();
 const appStateRef=doc(db,'guilds','yuil','app','state');
 let currentUser=null;
@@ -381,9 +383,10 @@ function normalizeMember(m){if(!m)return m; if(!rankList.includes(m.rank))m.rank
 function ensureHistory(m){if(!Array.isArray(m.history))m.history=[]; if(!m.history.length)m.history.push({date:m.joinDate||todayText(),rank:m.rank||'라그나블러드',grade:gradeFromRank(m.rank||'라그나블러드')}); m.history=m.history.filter(h=>h&&h.rank&&rankList.includes(h.rank)).map(h=>({date:h.date||todayText(),rank:h.rank,grade:gradeFromRank(h.rank)})); sortPromotionHistory(m); return m}
 function ensureMemberHistory(m){if(!Array.isArray(m.memberHistory))m.memberHistory=[]; if(!m.memberHistory.length){m.memberHistory.push({type:'가입',date:m.joinDate||todayText()}); if(m.withdrawDate)m.memberHistory.push({type:'탈퇴',date:m.withdrawDate})} m.memberHistory=m.memberHistory.filter(h=>h&&['가입','탈퇴','복귀'].includes(h.type)).map(h=>({type:h.type,date:h.date||todayText()})); return m}
 function latestJoinDate(m){ensureMemberHistory(m); const joins=m.memberHistory.filter(h=>h.type==='가입'||h.type==='복귀'); return (joins.length?joins[joins.length-1].date:m.joinDate)||todayText()}
+function isRemoteImageUrl(v){return typeof v==='string'&&(v.startsWith('https://')||v.startsWith('http://'));}
 function stripImageData(value){
   if(Array.isArray(value))return value.map(stripImageData);
-  if(value&&typeof value==='object'){const out={}; Object.entries(value).forEach(([k,v])=>{if(v===undefined)return; out[k]=k==='imageData'?'':stripImageData(v)}); return out}
+  if(value&&typeof value==='object'){const out={}; Object.entries(value).forEach(([k,v])=>{if(v===undefined)return; out[k]=k==='imageData'?(isRemoteImageUrl(v)?v:''):stripImageData(v)}); return out}
   return value;
 }
 function mergeLocalImages(cloudList,localList){
@@ -561,6 +564,39 @@ function saveMemberHistoryEdit(index){if(editingMemberIndex===null)return; const
 function deleteMemberHistory(index){if(editingMemberIndex===null)return; if(!confirm('이 가입 이력을 삭제하시겠습니까?'))return; const members=loadMembers();const m=members[editingMemberIndex]; if(!m||!m.memberHistory[index])return; m.memberHistory.splice(index,1); members[editingMemberIndex]=m;saveMembers(members);refreshAll(true)}
 
 const dragonStorageKey='yuilDragonCanyonV1';
+let dragonSeasonImageUploading=false,eventImageUploading=false;
+function fileToCompressedBlob(file,max=1400,quality=.86){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error('이미지를 읽지 못했습니다.'));
+    reader.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error('이미지 형식이 올바르지 않습니다.'));
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        const scale=Math.min(1,max/Math.max(w,h));
+        w=Math.round(w*scale); h=Math.round(h*scale);
+        const canvas=document.createElement('canvas');
+        canvas.width=w; canvas.height=h;
+        const ctx=canvas.getContext('2d');
+        ctx.drawImage(img,0,0,w,h);
+        canvas.toBlob(blob=>blob?resolve({blob,preview:canvas.toDataURL('image/jpeg',quality)}):reject(new Error('이미지 변환에 실패했습니다.')),'image/jpeg',quality);
+      };
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+async function uploadCardImage(file,folder){
+  if(!currentUser)throw new Error('Google 로그인 후 이미지를 업로드해주세요.');
+  const {blob,preview}=await fileToCompressedBlob(file);
+  const safeName=`${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`;
+  const path=`yuil-guild/${folder}/${currentUser.uid}/${safeName}`;
+  await uploadBytes(storageRef(storage,path),blob,{contentType:'image/jpeg',customMetadata:{uid:currentUser.uid}});
+  const url=await getDownloadURL(storageRef(storage,path));
+  return {url,preview};
+}
+
 const dragonSeasonStorageKey='yuilDragonSeasonsV1';
 let editingDragonSeasonId=null,dragonSeasonImageData='',dragonSeasonImageX=50,dragonSeasonImageY=50,dragonSeasonImageZoom=130;
 function mondayOfWeek(date){const d=new Date(date);const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);d.setHours(0,0,0,0);return d}
@@ -755,12 +791,12 @@ function setDragonManageTab(tab){
   if(isPart)renderDragonParticipants(); else if(isPlacement)renderDragonPlacements(); else renderDragonSeasons();
 }
 function dragonSeasonImageStyle(s){return s&&s.imageData?`background-image:url('${s.imageData}');background-size:${s.imageZoom||130}%;background-position:${s.imageX??50}% ${s.imageY??50}%;`:''}
-function updateDragonSeasonImagePreview(){const prev=$('dragonSeasonImagePreview'); if(!prev)return; prev.classList.toggle('has-image',!!dragonSeasonImageData); prev.style.backgroundImage=dragonSeasonImageData?`url('${dragonSeasonImageData}')`:''; prev.style.backgroundSize=`${dragonSeasonImageZoom}%`; prev.style.backgroundPosition=`${dragonSeasonImageX}% ${dragonSeasonImageY}%`; prev.innerHTML=`<span class="preview-text">${dragonSeasonImageData?'카드에 보일 영역을 조절해주세요.':'이미지를 올리면 홈 용의 협곡 카드 배경으로 표시됩니다.'}</span>`}
+function updateDragonSeasonImagePreview(){const prev=$('dragonSeasonImagePreview'); if(!prev)return; prev.classList.toggle('has-image',!!dragonSeasonImageData); prev.style.backgroundImage=dragonSeasonImageData?`url('${dragonSeasonImageData}')`:''; prev.style.backgroundSize=`${dragonSeasonImageZoom}%`; prev.style.backgroundPosition=`${dragonSeasonImageX}% ${dragonSeasonImageY}%`; prev.innerHTML=`<span class="preview-text">${dragonSeasonImageData?'카드에 보일 영역을 조절해주세요.':'이미지를 올리면 Firebase Storage에 저장되어 모두에게 표시됩니다.'}</span>`}
 function resetDragonSeasonImage(){dragonSeasonImageData='';dragonSeasonImageX=50;dragonSeasonImageY=50;dragonSeasonImageZoom=130; if($('dragonSeasonImageInput'))$('dragonSeasonImageInput').value=''; if($('dragonSeasonImageX'))$('dragonSeasonImageX').value=50; if($('dragonSeasonImageY'))$('dragonSeasonImageY').value=50; if($('dragonSeasonImageZoom'))$('dragonSeasonImageZoom').value=130; updateDragonSeasonImagePreview()}
 function resetDragonSeasonForm(){editingDragonSeasonId=null; $('dragonSeasonNumber').value=''; $('dragonSeasonStart').value=''; $('dragonSeasonEnd').value=''; resetDragonSeasonImage()}
 function renderDragonSeasons(){const rows=loadDragonSeasons(); const tb=$('dragonSeasonTable'); if(!tb)return; if(!rows.length){tb.innerHTML='<tr><td colspan="4" class="empty-message">등록된 시즌이 없습니다.</td></tr>';return} tb.innerHTML=rows.map(s=>`<tr><td>${s.season}시즌</td><td class="thin">${displayDragonDate(s.start)}</td><td class="thin">${displayDragonDate(s.end)}</td><td><div class="actions"><button class="detail-btn dragon-season-edit" data-id="${s.id}">수정</button><button class="detail-btn danger-btn dragon-season-delete" data-id="${s.id}">삭제</button></div></td></tr>`).join(''); document.querySelectorAll('.dragon-season-edit').forEach(btn=>btn.onclick=()=>editDragonSeason(btn.dataset.id)); document.querySelectorAll('.dragon-season-delete').forEach(btn=>btn.onclick=()=>deleteDragonSeason(btn.dataset.id))}
 function editDragonSeason(id){const s=loadDragonSeasons().find(x=>String(x.id)===String(id)); if(!s)return; editingDragonSeasonId=s.id; $('dragonSeasonNumber').value=s.season; $('dragonSeasonStart').value=s.start; $('dragonSeasonEnd').value=s.end; dragonSeasonImageData=s.imageData||''; dragonSeasonImageX=Number(s.imageX??50); dragonSeasonImageY=Number(s.imageY??50); dragonSeasonImageZoom=Number(s.imageZoom??130); if($('dragonSeasonImageInput'))$('dragonSeasonImageInput').value=''; if($('dragonSeasonImageX'))$('dragonSeasonImageX').value=dragonSeasonImageX; if($('dragonSeasonImageY'))$('dragonSeasonImageY').value=dragonSeasonImageY; if($('dragonSeasonImageZoom'))$('dragonSeasonImageZoom').value=dragonSeasonImageZoom; updateDragonSeasonImagePreview(); $('dragonSeasonForm').classList.add('open')}
-function saveDragonSeason(){const season=$('dragonSeasonNumber').value.trim(); const start=parseDragonAnyDate($('dragonSeasonStart').value); const end=parseDragonAnyDate($('dragonSeasonEnd').value); if(!season||!start||!end){alert('시즌, 시작일, 종료일을 입력해주세요.');return} let list=loadDragonSeasons(); const item={id:editingDragonSeasonId||Date.now(),season,start,end,imageData:dragonSeasonImageData,imageX:dragonSeasonImageX,imageY:dragonSeasonImageY,imageZoom:dragonSeasonImageZoom}; if(editingDragonSeasonId)list=list.map(s=>String(s.id)===String(editingDragonSeasonId)?item:s); else list.push(item); saveDragonSeasons(list); resetDragonSeasonForm(); $('dragonSeasonForm').classList.remove('open'); renderDragonSeasons(); renderDragonCanyon(false); renderDragonParticipants(false); renderDragonPlacements();renderCurrentDragonPlacement(); renderHomeEvents()}
+function saveDragonSeason(){if(dragonSeasonImageUploading){alert('이미지 업로드가 끝난 뒤 저장해주세요.');return} const season=$('dragonSeasonNumber').value.trim(); const start=parseDragonAnyDate($('dragonSeasonStart').value); const end=parseDragonAnyDate($('dragonSeasonEnd').value); if(!season||!start||!end){alert('시즌, 시작일, 종료일을 입력해주세요.');return} let list=loadDragonSeasons(); const item={id:editingDragonSeasonId||Date.now(),season,start,end,imageData:dragonSeasonImageData,imageX:dragonSeasonImageX,imageY:dragonSeasonImageY,imageZoom:dragonSeasonImageZoom}; if(editingDragonSeasonId)list=list.map(s=>String(s.id)===String(editingDragonSeasonId)?item:s); else list.push(item); saveDragonSeasons(list); resetDragonSeasonForm(); $('dragonSeasonForm').classList.remove('open'); renderDragonSeasons(); renderDragonCanyon(false); renderDragonParticipants(false); renderDragonPlacements();renderCurrentDragonPlacement(); renderHomeEvents()}
 function deleteDragonSeason(id){if(!confirm('이 시즌을 삭제하시겠습니까?'))return; saveDragonSeasons(loadDragonSeasons().filter(s=>String(s.id)!==String(id))); renderDragonSeasons(); renderDragonCanyon(false); renderDragonParticipants(false); renderDragonPlacements();renderCurrentDragonPlacement()}
 function dragonDaySummary(mon,dayIndex){const dates=dragonWeekDates(mon); const d=dates[dayIndex]; const contents=['탑승','탐사','탐사','탐사','토벌','토벌','토벌']; const days=['월','화','수','목','금','토','일']; const active=activeMembersWithIndex().map(x=>x.m); const data=loadDragon(); if(dayIndex===0)return {day:days[dayIndex],content:contents[dayIndex],joined:[],notJoined:[],date:d}; const joined=active.filter(m=>isDragonJoined(data,d,m)); const notJoined=active.filter(m=>!isDragonJoined(data,d,m)); return {day:days[dayIndex],content:contents[dayIndex],joined,notJoined,date:d}}
 function renderDragonParticipantTable(mon,targetTbodyId='dragonParticipantTable',prefix='current'){
@@ -812,7 +848,7 @@ function fillEventTypes(el){if(el)el.innerHTML=eventTypeList.map(t=>`<option val
 function loadEvents(){try{return JSON.parse(localStorage.getItem(eventStorageKey)||'[]').filter(e=>e&&e.type&&e.name&&e.start&&e.end).sort((a,b)=>dragonParseDate(b.start)-dragonParseDate(a.start))}catch(e){return []}}
 function saveEvents(list){localStorage.setItem(eventStorageKey,JSON.stringify(list));queueCloudSave()}
 function eventImageStyle(e){return e&&e.imageData?`background-image:url('${e.imageData}');background-size:${e.imageZoom||130}%;background-position:${e.imageX??50}% ${e.imageY??50}%;`:''}
-function updateEventImagePreview(){const prev=$('eventImagePreview'); if(!prev)return; prev.classList.toggle('has-image',!!eventImageData); prev.style.backgroundImage=eventImageData?`url('${eventImageData}')`:''; prev.style.backgroundSize=`${eventImageZoom}%`; prev.style.backgroundPosition=`${eventImageX}% ${eventImageY}%`; prev.innerHTML=`<span class="preview-text">${eventImageData?'카드에 보일 영역을 조절해주세요.':'이미지를 올리면 홈 이벤트 카드 배경으로 표시됩니다.'}</span>`}
+function updateEventImagePreview(){const prev=$('eventImagePreview'); if(!prev)return; prev.classList.toggle('has-image',!!eventImageData); prev.style.backgroundImage=eventImageData?`url('${eventImageData}')`:''; prev.style.backgroundSize=`${eventImageZoom}%`; prev.style.backgroundPosition=`${eventImageX}% ${eventImageY}%`; prev.innerHTML=`<span class="preview-text">${eventImageData?'카드에 보일 영역을 조절해주세요.':'이미지를 올리면 Firebase Storage에 저장되어 모두에게 표시됩니다.'}</span>`}
 function resetEventImage(){eventImageData='';eventImageX=50;eventImageY=50;eventImageZoom=130; if($('eventImageInput'))$('eventImageInput').value=''; if($('eventImageX'))$('eventImageX').value=50; if($('eventImageY'))$('eventImageY').value=50; if($('eventImageZoom'))$('eventImageZoom').value=130; updateEventImagePreview()}
 function resetEventForm(){editingEventId=null; if($('eventType'))$('eventType').value='이벤트'; if($('eventName'))$('eventName').value=''; if($('eventStart'))$('eventStart').value=''; if($('eventStartTime'))$('eventStartTime').value=''; if($('eventEnd'))$('eventEnd').value=''; if($('eventEndTime'))$('eventEndTime').value=''; resetEventImage(); if($('saveEventBtn'))$('saveEventBtn').textContent='이벤트 저장'}
 function eventTimeText(t){return t?` ${t}`:''}
@@ -921,7 +957,7 @@ function renderEvents(){
   renderHomeEvents();
 }
 function editEvent(id){const e=loadEvents().find(x=>String(x.id)===String(id)); if(!e)return; editingEventId=e.id; $('eventType').value=e.type; $('eventName').value=e.name; $('eventStart').value=e.start; $('eventStartTime').value=e.startTime||''; $('eventEnd').value=e.end; $('eventEndTime').value=e.endTime||''; eventImageData=e.imageData||''; eventImageX=Number(e.imageX??50); eventImageY=Number(e.imageY??50); eventImageZoom=Number(e.imageZoom??130); if($('eventImageInput'))$('eventImageInput').value=''; if($('eventImageX'))$('eventImageX').value=eventImageX; if($('eventImageY'))$('eventImageY').value=eventImageY; if($('eventImageZoom'))$('eventImageZoom').value=eventImageZoom; updateEventImagePreview(); $('saveEventBtn').textContent='이벤트 저장'; $('eventForm').classList.add('open'); setTimeout(()=>$('eventForm').scrollIntoView({behavior:'smooth',block:'start'}),40)}
-function saveEvent(){const type=$('eventType').value; const name=$('eventName').value.trim(); const start=parseDragonAnyDate($('eventStart').value); const startTime=$('eventStartTime').value; const end=parseDragonAnyDate($('eventEnd').value); const endTime=$('eventEndTime').value; if(!type||!name||!start||!startTime||!end||!endTime){alert('이벤트 종류, 이름, 시작일, 시작 시간, 종료일, 종료 시간을 모두 입력해주세요.');return} let list=loadEvents(); const item={id:editingEventId||Date.now(),type,name,start,startTime,end,endTime,imageData:eventImageData,imageX:eventImageX,imageY:eventImageY,imageZoom:eventImageZoom}; if(editingEventId)list=list.map(e=>String(e.id)===String(editingEventId)?item:e); else list.push(item); saveEvents(list); resetEventForm(); $('eventForm').classList.remove('open'); renderEvents();}
+function saveEvent(){if(eventImageUploading){alert('이미지 업로드가 끝난 뒤 저장해주세요.');return} const type=$('eventType').value; const name=$('eventName').value.trim(); const start=parseDragonAnyDate($('eventStart').value); const startTime=$('eventStartTime').value; const end=parseDragonAnyDate($('eventEnd').value); const endTime=$('eventEndTime').value; if(!type||!name||!start||!startTime||!end||!endTime){alert('이벤트 종류, 이름, 시작일, 시작 시간, 종료일, 종료 시간을 모두 입력해주세요.');return} let list=loadEvents(); const item={id:editingEventId||Date.now(),type,name,start,startTime,end,endTime,imageData:eventImageData,imageX:eventImageX,imageY:eventImageY,imageZoom:eventImageZoom}; if(editingEventId)list=list.map(e=>String(e.id)===String(editingEventId)?item:e); else list.push(item); saveEvents(list); resetEventForm(); $('eventForm').classList.remove('open'); renderEvents();}
 function deleteEvent(id){if(!confirm('이 이벤트를 삭제하시겠습니까?'))return; saveEvents(loadEvents().filter(e=>String(e.id)!==String(id))); renderEvents()}
 
 function setJoinEnabled(enabled){['nicknameInput','rankSelect','joinBtn'].forEach(id=>{const el=$(id); if(el)el.disabled=!enabled})}
@@ -1030,10 +1066,10 @@ document.querySelectorAll('.page-back').forEach(btn=>btn.onclick=goBack);$('menu
 
 ['dragonSeasonImageX','dragonSeasonImageY','dragonSeasonImageZoom'].forEach(id=>{const el=$(id); if(el)el.oninput=()=>{dragonSeasonImageX=Number($('dragonSeasonImageX').value); dragonSeasonImageY=Number($('dragonSeasonImageY').value); dragonSeasonImageZoom=Number($('dragonSeasonImageZoom').value); updateDragonSeasonImagePreview()}});
 if($('removeDragonSeasonImageBtn'))$('removeDragonSeasonImageBtn').onclick=resetDragonSeasonImage;
-if($('dragonSeasonImageInput'))$('dragonSeasonImageInput').onchange=e=>{const file=e.target.files&&e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=()=>{const img=new Image(); img.onload=()=>{const max=1200; let w=img.width,h=img.height; const scale=Math.min(1,max/Math.max(w,h)); w=Math.round(w*scale); h=Math.round(h*scale); const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h; const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,w,h); dragonSeasonImageData=canvas.toDataURL('image/jpeg',.86); updateDragonSeasonImagePreview()}; img.src=reader.result}; reader.readAsDataURL(file)};
+if($('dragonSeasonImageInput'))$('dragonSeasonImageInput').onchange=async e=>{const file=e.target.files&&e.target.files[0]; if(!file)return; try{dragonSeasonImageUploading=true; const {url,preview}=await uploadCardImage(file,'dragon-seasons'); dragonSeasonImageData=preview; updateDragonSeasonImagePreview(); dragonSeasonImageData=url; updateDragonSeasonImagePreview()}catch(err){console.warn(err); alert('이미지 업로드에 실패했습니다. Storage 규칙과 네트워크를 확인해주세요.')}finally{dragonSeasonImageUploading=false}};
 ['eventImageX','eventImageY','eventImageZoom'].forEach(id=>{const el=$(id); if(el)el.oninput=()=>{eventImageX=Number($('eventImageX').value); eventImageY=Number($('eventImageY').value); eventImageZoom=Number($('eventImageZoom').value); updateEventImagePreview()}});
 if($('removeEventImageBtn'))$('removeEventImageBtn').onclick=()=>resetEventImage();
-if($('eventImageInput'))$('eventImageInput').onchange=e=>{const file=e.target.files&&e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=()=>{const img=new Image(); img.onload=()=>{const max=1200; let w=img.width,h=img.height; const scale=Math.min(1,max/Math.max(w,h)); w=Math.round(w*scale); h=Math.round(h*scale); const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h; const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,w,h); eventImageData=canvas.toDataURL('image/jpeg',.86); updateEventImagePreview()}; img.src=reader.result}; reader.readAsDataURL(file)};
+if($('eventImageInput'))$('eventImageInput').onchange=async e=>{const file=e.target.files&&e.target.files[0]; if(!file)return; try{eventImageUploading=true; const {url,preview}=await uploadCardImage(file,'events'); eventImageData=preview; updateEventImagePreview(); eventImageData=url; updateEventImagePreview()}catch(err){console.warn(err); alert('이미지 업로드에 실패했습니다. Storage 규칙과 네트워크를 확인해주세요.')}finally{eventImageUploading=false}};
 updateEventImagePreview();
 setInterval(()=>{if(currentView==='home')renderHomeDragonNotice()},1000);
 initFirebaseAuth();
