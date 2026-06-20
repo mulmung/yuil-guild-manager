@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>유일 길드 관리</title>
+  <style>
+    :root{
+      --blue:#1268ff; --deep-blue:#0747b8; --light-blue:#eef6ff;
+      --white:#fff; --text:#12223a; --muted:#6f7f96;
+      --line:rgba(18,104,255,.18); --shadow:0 18px 40px rgba(7,71,184,.16);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{margin:0;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;color:var(--text);background:radial-gradient(circle at top left,rgba(18,104,255,.18),transparent 34%),linear-gradient(180deg,#f7fbff 0%,#eef6ff 42%,#fff 100%);overflow-x:hidden}
+    button,input,select{font-family:inherit}
+    .app{width:min(100%,480px);min-height:100vh;margin:0 auto;position:relative;background:rgba(255,255,255,.62);overflow:hidden}
+    .screen{display:none;min-height:100vh;padding:14px 14px 24px}.screen.active{display:block}
+    .join-wrap{display:flex;min-height:100vh;align-items:center;justify-content:center;padding:28px 18px}.join-card{width:100%;border-radius:30px;background:rgba(255,255,255,.92);box-shadow:var(--shadow);padding:28px 20px 22px;border:1px solid rgba(18,104,255,.12)}
+    .badge{width:fit-content;padding:7px 12px;border-radius:999px;background:var(--light-blue);color:var(--deep-blue);font-size:11px;font-weight:900}.join-title{margin:18px 0 6px;font-size:30px;line-height:1.15;font-weight:950;letter-spacing:-1.2px}.join-desc{margin:0 0 26px;color:var(--muted);font-size:14px;line-height:1.55}
+    label{display:block;margin:16px 0 8px;color:var(--deep-blue);font-size:11px;font-weight:900} input,select{width:100%;height:52px;border:1px solid rgba(18,104,255,.22);border-radius:16px;background:#fff;padding:0 15px;color:var(--text);font-size:16px;outline:none} select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--blue) 50%),linear-gradient(135deg,var(--blue) 50%,transparent 50%);background-position:calc(100% - 21px) 22px,calc(100% - 15px) 22px;background-size:6px 6px,6px 6px;background-repeat:no-repeat} input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(18,104,255,.1)}
+    .primary-btn,.secondary-btn{width:100%;height:52px;border-radius:16px;font-size:15px;font-weight:950}.primary-btn{margin-top:24px;border:0;background:linear-gradient(135deg,var(--blue),var(--deep-blue));color:#fff;box-shadow:0 14px 26px rgba(18,104,255,.24)}.secondary-btn{margin-top:14px;border:1px solid rgba(18,104,255,.18);background:#fff;color:var(--deep-blue)}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:2px 0 12px}.guild-title{margin:0;color:var(--deep-blue);font-size:23px;font-weight:950;letter-spacing:-.9px}.icon-row{display:flex;gap:8px}.icon-btn{width:38px;height:38px;border:0;border-radius:50%;background:rgba(255,255,255,.72);color:var(--deep-blue);display:grid;place-items:center;box-shadow:0 8px 22px rgba(7,71,184,.08)}.icon-btn svg{width:21px;height:21px;stroke-width:2.25}
+    .hero{margin-top:2px;padding:18px;border-radius:24px;color:#fff;background:linear-gradient(135deg,rgba(18,104,255,.96),rgba(7,71,184,.96)),radial-gradient(circle at top right,rgba(255,255,255,.34),transparent 34%);box-shadow:var(--shadow);min-height:118px;display:flex;flex-direction:column;justify-content:flex-end}.hero-main{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}.hero-text{min-width:0;flex:1}.welcome-name{margin:0 0 7px;font-size:32px;font-weight:950;letter-spacing:-1.4px;line-height:1.08}.welcome-name .name-sub{font-size:15px;font-weight:300;opacity:.86;letter-spacing:-.4px}.welcome-small{margin:0;font-size:13px;font-weight:300;opacity:.86;letter-spacing:-.2px}.promote-btn{flex:0 0 auto;border:1px solid rgba(255,255,255,.36);background:rgba(255,255,255,.16);color:#fff;border-radius:999px;padding:9px 11px;font-size:11px;font-weight:950;backdrop-filter:blur(8px)}.promote-btn:active{transform:scale(.97);background:rgba(255,255,255,.25)}.promotion-panel{margin-top:10px;border-radius:18px;background:rgba(255,255,255,.78);padding:12px 0 14px}.promotion-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 4px}.promotion-chip{border:1px solid rgba(18,104,255,.14);border-radius:14px;background:#fff;padding:10px}.promotion-chip span{display:block;color:var(--muted);font-size:11px;font-weight:800}.promotion-chip strong{display:block;margin-top:4px;color:var(--deep-blue);font-size:14px;font-weight:950}.promotion-grade-line{margin:8px 0 0;color:var(--muted);font-size:13px;font-weight:700}.promotion-grade-line strong{color:var(--deep-blue);font-weight:950}
+    .home-quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.home-quick.single{grid-template-columns:1fr}.home-quick.three{grid-template-columns:repeat(3,1fr);gap:8px}.home-quick.three .home-quick-btn{font-size:13px;padding:0 6px}.home-quick-btn{height:54px;border:1px solid rgba(18,104,255,.18);border-radius:18px;background:rgba(255,255,255,.76);color:var(--deep-blue);font-size:15px;font-weight:950;box-shadow:0 10px 24px rgba(7,71,184,.08)}.home-quick-btn:active{transform:scale(.985);background:var(--light-blue)}
+    .home-block{margin-top:18px}.home-block-head{display:flex;align-items:end;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px}.home-block-head h2{margin:0;font-size:18px;font-weight:950;letter-spacing:-.6px}.home-event-list{display:grid;gap:10px}.home-event-card{position:relative;overflow:hidden;min-height:124px;border:1px solid rgba(18,104,255,.16);border-radius:18px;background:rgba(255,255,255,.78);box-shadow:0 10px 24px rgba(7,71,184,.08);padding:0 15px;background-repeat:no-repeat;color:var(--text)}.home-event-card.dragon-home-card{cursor:pointer}.home-event-card.has-image{background-color:#0d1b33;color:#fff}.home-event-card.has-image:before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.42);z-index:0}.home-event-card>*{position:relative;z-index:1}.home-event-card.has-image .home-event-name{color:#fff}.home-event-card.has-image .home-event-type{color:rgba(255,255,255,.76)}.home-event-card.has-image .home-event-period{color:#fff}.home-event-name{position:absolute;left:15px;right:15px;bottom:64px;margin:0;font-size:18px;font-weight:950;letter-spacing:-.5px;color:var(--text)}.home-event-type{position:absolute;left:15px;right:15px;bottom:44px;margin:0;font-size:12px;font-weight:500;color:var(--muted)}.home-event-period{position:absolute;left:15px;right:15px;bottom:16px;margin:0;font-size:13px;font-weight:800;color:var(--deep-blue);line-height:1.35;white-space:nowrap;letter-spacing:-.35px}.home-empty{padding:16px 4px;color:var(--muted);font-size:13px;text-align:center;border-bottom:1px solid var(--line)}
+
+    .home-event-card{cursor:pointer}
+    .home-event-card .home-event-name,.home-event-card .home-event-type,.home-event-card .home-event-period{right:58px}
+    .home-event-arrow{position:absolute;right:16px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:950;color:var(--deep-blue);background:rgba(18,104,255,.09);border:1px solid rgba(18,104,255,.13);z-index:2;line-height:1}
+    .home-event-card.has-image .home-event-arrow{color:#fff;background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.28);backdrop-filter:blur(6px)}
+    .home-event-card:active{transform:scale(.985)}
+    .flat-section{width:100%;margin-top:18px;background:transparent;border:0;box-shadow:none;border-radius:0}.flat-head,.flat-subhead{display:flex;align-items:end;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line)}.flat-head{padding:0 0 12px}.flat-head h2{margin:0;font-size:20px;letter-spacing:-.7px;display:flex;align-items:center;gap:4px}.page-back{border:0;background:transparent;color:var(--text);font-size:25px;font-weight:950;line-height:1;padding:0 4px 1px 0;margin:0;cursor:pointer}.page-back:active{color:var(--deep-blue)}.flat-head span{color:var(--muted);font-size:13px;font-weight:800}.flat-subhead{padding:18px 0 10px}.flat-subhead h3{margin:0;font-size:16px;font-weight:950;letter-spacing:-.5px}
+    .table-wrap{width:100%;overflow-x:hidden} table{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse;font-size:10.5px;white-space:nowrap} th,td{padding:11px 4px;text-align:left;border-bottom:1px solid var(--line);overflow:hidden;text-overflow:ellipsis} th{color:var(--deep-blue);font-size:11px;font-weight:950;background:transparent} td{font-weight:700;word-break:keep-all}.thin{font-weight:500;color:var(--muted)}
+    .guild-table th:nth-child(1),.guild-table td:nth-child(1){width:18%}.guild-table th:nth-child(2),.guild-table td:nth-child(2){width:13%}.guild-table th:nth-child(3),.guild-table td:nth-child(3){width:13%}.guild-table th:nth-child(4),.guild-table td:nth-child(4){width:20%}.guild-table th:nth-child(5),.guild-table td:nth-child(5){width:16%}.guild-table th:nth-child(6),.guild-table td:nth-child(6){width:20%;text-align:right}
+    .basic-table th:nth-child(1),.basic-table td:nth-child(1){width:22%}.basic-table th:nth-child(2),.basic-table td:nth-child(2){width:16%}.basic-table th:nth-child(3),.basic-table td:nth-child(3){width:16%}.basic-table th:nth-child(4),.basic-table td:nth-child(4){width:26%}.basic-table th:nth-child(5),.basic-table td:nth-child(5){width:20%;text-align:right}
+    .history-table th:nth-child(1),.history-table td:nth-child(1){width:24%}.history-table th:nth-child(2),.history-table td:nth-child(2){width:18%}.history-table th:nth-child(3),.history-table td:nth-child(3){width:30%}.history-table th:nth-child(4),.history-table td:nth-child(4){width:28%;text-align:right}
+    .detail-btn,.text-btn{border:0;background:transparent;color:var(--blue);font-weight:950;padding:6px 0;font-size:10.5px;white-space:nowrap}.text-btn{font-size:12px}.danger-btn{color:#e53935}.empty-message{padding:28px 16px 32px;color:var(--muted);text-align:center;font-size:14px;line-height:1.5}.actions{display:flex;justify-content:flex-end;gap:8px}
+    .detail-row,.inline-row{display:none}.detail-row.open,.inline-row.open{display:table-row}.detail-box,.inline-box{padding:0!important;white-space:normal}.history-box,.inline-inner{padding:10px 0 12px;border-bottom:1px solid var(--line)}.history-title{margin:0 0 8px;color:var(--text);font-size:14px;font-weight:950}.detail-table{font-size:11px}.detail-table th,.detail-table td{padding:10px 8px}
+    .edit-panel{margin-top:14px;padding-top:2px}.compact-form{display:none;padding:12px 0 14px;border-bottom:1px solid var(--line)}.compact-form.open{display:block}.compact-form input,.compact-form select,.inline-inner input,.inline-inner select{height:48px;border-radius:14px;font-size:15px}.small-note{color:var(--muted);font-size:12px;line-height:1.55;margin:10px 0 0}.auto-grade{margin-top:10px;color:var(--muted);font-size:13px;font-weight:700}.auto-grade strong{color:var(--deep-blue);font-weight:950}.inline-editor{display:none;padding:10px 0 12px;border-bottom:1px solid var(--line)}.inline-editor.open{display:block}
+    .drawer-backdrop{position:fixed;inset:0;background:rgba(7,25,54,.28);opacity:0;pointer-events:none;transition:.24s ease;z-index:20}.drawer-backdrop.open{opacity:1;pointer-events:auto}.drawer{position:fixed;top:0;right:0;width:min(82vw,340px);height:100vh;background:rgba(255,255,255,.96);box-shadow:-18px 0 40px rgba(7,71,184,.18);transform:translateX(105%);transition:transform .28s cubic-bezier(.22,.8,.22,1);z-index:30;padding:max(18px,env(safe-area-inset-top)) 18px 24px;border-radius:26px 0 0 26px}.drawer.open{transform:translateX(0)}.drawer-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:18px;border-bottom:1px solid var(--line)}.drawer-head strong{color:var(--deep-blue);font-size:19px}.close-btn{width:38px;height:38px;border:0;border-radius:50%;background:var(--light-blue);color:var(--deep-blue);font-size:24px}.menu-list{margin-top:16px;display:grid;border-top:1px solid var(--line)}.menu-item{width:100%;height:54px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);text-align:left;padding:0 2px;font-size:16px;font-weight:650}.menu-item.active,.menu-item:active{color:var(--deep-blue);font-weight:950}
+
+    .sub-tabs{position:relative;display:flex;margin-top:14px;border-bottom:1px solid var(--line);height:46px;align-items:flex-start;width:100%}
+    .sub-tab{width:50%;height:45px;border:0;background:transparent;padding:0 0 14px;color:var(--muted);font-size:15px;font-weight:850;line-height:1;position:relative;text-align:center}
+    .sub-tabs.three .sub-tab{width:33.3333%}
+    .sub-tab.active{color:var(--deep-blue);font-weight:950}
+    .tab-indicator{position:absolute;left:0;bottom:-1px;width:50%;height:3px;border-radius:99px;background:var(--blue);transition:transform .24s ease,width .24s ease;pointer-events:none}
+    .tab-panel{display:none}.tab-panel.active{display:block}
+    .withdraw-table th:nth-child(1),.withdraw-table td:nth-child(1){width:18%}.withdraw-table th:nth-child(2),.withdraw-table td:nth-child(2){width:13%}.withdraw-table th:nth-child(3),.withdraw-table td:nth-child(3){width:13%}.withdraw-table th:nth-child(4),.withdraw-table td:nth-child(4){width:22%}.withdraw-table th:nth-child(5),.withdraw-table td:nth-child(5){width:16%}.withdraw-table th:nth-child(6),.withdraw-table td:nth-child(6){width:18%;text-align:right}
+    .member-history-table th:nth-child(1),.member-history-table td:nth-child(1){width:32%}.member-history-table th:nth-child(2),.member-history-table td:nth-child(2){width:34%}.member-history-table th:nth-child(3),.member-history-table td:nth-child(3){width:34%;text-align:right}
+    .member-history-view-table th:nth-child(1),.member-history-view-table td:nth-child(1){width:45%}.member-history-view-table th:nth-child(2),.member-history-view-table td:nth-child(2){width:55%}
+    .tab-full-line{height:1px;background:var(--line);margin:0}
+
+
+    .dragon-section{margin-top:18px}
+    .dragon-week{width:100%;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:12px}
+    .dragon-row{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--line)}
+    .dragon-row:last-child{border-bottom:0}
+    .dragon-cell{min-height:48px;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px 2px;font-size:12px;font-weight:850;color:var(--text);position:relative}
+    .dragon-cell.day{color:var(--deep-blue);font-weight:950}
+    .dragon-cell.content{color:var(--text);font-weight:950;font-size:12px}
+    .dragon-date{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;color:var(--muted);font-weight:800}
+    .dragon-date.today{border:2px solid var(--blue);color:var(--deep-blue);font-weight:950;background:rgba(18,104,255,.05)}
+    .dragon-status{border:0;background:transparent;color:var(--muted);font-weight:950;font-size:11px;padding:8px 0;width:100%;height:100%}
+    .dragon-status.joined{color:var(--blue)}
+    .dragon-week-label{margin-top:18px;padding:0 0 10px;border-bottom:1px solid var(--line);color:var(--deep-blue);font-size:15px;font-weight:950;letter-spacing:-.3px}
+    .dragon-records{border-top:1px solid var(--line);margin-top:0}
+    .dragon-record-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:52px;border-bottom:1px solid var(--line);font-size:13px;font-weight:850}
+    .dragon-record-row strong{font-size:13px;font-weight:950;color:var(--text)}
+    .dragon-record-actions{display:flex;gap:12px;align-items:center;flex-shrink:0}
+    .dragon-record-detail{display:none;margin-top:12px}
+    .dragon-record-detail.open{display:block}
+    .dragon-record-title{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 0 10px;border-bottom:1px solid var(--line)}
+    .dragon-record-title h3{margin:0;font-size:16px;font-weight:950;letter-spacing:-.4px}
+
+    @media(max-height:760px){.hero{min-height:104px;padding:16px 18px}.flat-section{margin-top:12px}th,td{padding-top:10px;padding-bottom:10px}}
+    @media(max-width:380px){.welcome-name{font-size:30px}.guild-title{font-size:22px}.screen{padding-left:14px;padding-right:14px}table{font-size:10px}th,td{padding:10px 3px}.detail-btn{font-size:9.5px}}
+  
+    .dragon-daydate{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:36px;height:42px;border-radius:12px}
+    .dragon-daydate.today{border:2px solid var(--blue);background:rgba(18,104,255,.05)}
+    .dragon-daydate .dd-day{color:var(--deep-blue);font-size:13px;font-weight:950;line-height:1}
+    .dragon-daydate .dd-date{color:var(--muted);font-size:11px;font-weight:800;line-height:1}
+    .dragon-participant-table th:nth-child(1),.dragon-participant-table td:nth-child(1){width:15%}
+    .dragon-participant-table th:nth-child(2),.dragon-participant-table td:nth-child(2){width:20%}
+    .dragon-participant-table th:nth-child(3),.dragon-participant-table td:nth-child(3){width:18%}
+    .dragon-participant-table th:nth-child(4),.dragon-participant-table td:nth-child(4){width:20%}
+    .dragon-participant-table th:nth-child(5),.dragon-participant-table td:nth-child(5){width:27%;text-align:right}
+    .two-col-members{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:10px}
+    .two-col-members>div{padding:10px 8px;min-height:70px}
+    .two-col-members>div:first-child{border-right:1px solid var(--line)}
+    .two-col-members h4{margin:0 0 10px;color:var(--deep-blue);font-size:12px;font-weight:950}
+    .member-chip-list{display:grid;gap:7px;font-size:13px;font-weight:800;color:var(--text)}
+    .member-chip-list .none{color:var(--muted);font-weight:700}
+    .season-table th:nth-child(1),.season-table td:nth-child(1){width:18%}
+    .season-table th:nth-child(2),.season-table td:nth-child(2){width:24%}
+    .season-table th:nth-child(3),.season-table td:nth-child(3){width:24%}
+    .season-table th:nth-child(4),.season-table td:nth-child(4){width:34%;text-align:right}
+    .placement-table th:nth-child(1),.placement-table td:nth-child(1){width:35%}
+    .placement-table th:nth-child(2),.placement-table td:nth-child(2){width:22%}
+    .placement-table th:nth-child(3),.placement-table td:nth-child(3){width:43%;text-align:right}
+    .placement-preview{display:none;margin-top:14px}.placement-preview.open{display:block}
+    .placement-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+    .placement-team{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 3px;min-width:0}
+    .placement-team h4{margin:0 0 6px;color:var(--deep-blue);font-size:10.5px;font-weight:950;letter-spacing:-.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .placement-team-meta{font-size:9px;color:var(--muted);font-weight:900;margin-bottom:8px;white-space:nowrap}
+    .placement-member{border-top:1px solid rgba(18,104,255,.12);padding:6px 0;font-size:9.5px;font-weight:850;line-height:1.25}
+    .placement-member strong{display:block;color:var(--text);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .placement-member.leader strong{color:var(--deep-blue);font-weight:950}
+    .placement-member span{display:block;color:var(--muted);font-size:8.8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .placement-total{margin-top:10px;color:var(--muted);font-size:12px;font-weight:800}
+
+    .event-table th:nth-child(1),.event-table td:nth-child(1){width:22%}
+    .event-table th:nth-child(2),.event-table td:nth-child(2){width:28%}
+    .event-table th:nth-child(3),.event-table td:nth-child(3){width:28%}
+    .event-table th:nth-child(4),.event-table td:nth-child(4){width:22%;text-align:right}
+    .event-view-table th:nth-child(1),.event-view-table td:nth-child(1){width:18%}
+    .event-view-table th:nth-child(2),.event-view-table td:nth-child(2){width:24%}
+    .event-view-table th:nth-child(3),.event-view-table td:nth-child(3){width:58%}
+    .event-view-table .period-full{white-space:nowrap;overflow:visible;text-overflow:clip;line-height:1.2;word-break:keep-all;font-size:10px}
+    .image-tool{margin-top:14px;padding-top:4px;border-top:1px solid var(--line)}
+    .image-tool input[type="file"]{height:auto;padding:13px 12px;line-height:1.2}
+    .event-image-preview{position:relative;margin-top:12px;width:100%;height:132px;border-radius:18px;border:1px solid rgba(18,104,255,.18);background:rgba(238,246,255,.9);background-repeat:no-repeat;overflow:hidden;display:grid;place-items:center;color:var(--muted);font-size:13px;font-weight:800}
+    .event-image-preview.has-image{background-color:#0d1b33;color:#fff}
+    .event-image-preview.has-image:before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.42)}
+    .event-image-preview .preview-text{position:relative;z-index:1;text-align:center;padding:0 14px}
+    .range-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .range-grid label{margin:0;color:var(--muted);font-size:10px}.range-grid input[type="range"]{height:32px;padding:0;border:0;background:transparent;box-shadow:none}
+    .image-actions{display:flex;gap:10px;margin-top:10px}.image-actions .text-btn{font-size:12px}
+
+  </style>
+</head>
+<body>
+<main class="app">
+  <section id="joinScreen" class="screen active">
+    <div class="join-wrap"><div class="join-card">
+      <div class="badge">YUIL GUILD</div>
+      <h1 class="join-title">유일 길드<br>가입하기</h1>
+      <p class="join-desc">닉네임과 현재 승급을 입력하면 직급이 자동 적용됩니다.</p>
+      <label for="nicknameInput">닉네임</label><input id="nicknameInput" type="text" placeholder="닉네임을 입력하세요" autocomplete="off">
+      <label for="rankSelect">승급</label><select id="rankSelect"></select>
+      <button class="primary-btn" id="joinBtn">가입하기</button>
+    </div></div>
+  </section>
+  <section id="mainScreen" class="screen">
+    <header class="topbar"><h1 class="guild-title">유일 길드</h1><div class="icon-row">
+      <button class="icon-btn" id="homeBtn" aria-label="홈"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg></button>
+      <button class="icon-btn" id="menuBtn" aria-label="메뉴"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg></button>
+    </div></header>
+    <section class="hero" id="welcomeHero"><div class="hero-main"><div class="hero-text"><h2 class="welcome-name"><span id="userName" class="name-main">닉네임</span><span class="name-sub"> <span id="userPosition">사원</span>님 환영합니다</span></h2><p class="welcome-small"><span id="userGrade">사원</span> · <span id="userRank">라그나블러드</span></p></div><button class="promote-btn" id="promoteBtn">진급하기</button></div></section>
+      <div class="compact-form promotion-panel" id="promotionPanel">
+        <div class="flat-subhead" style="padding-top:0"><h3>진급 처리</h3><button class="text-btn" id="closePromotionBtn">닫기</button></div>
+        <div class="promotion-summary">
+          <div class="promotion-chip"><span>현재 승급</span><strong id="currentPromotionRank">-</strong></div>
+          <div class="promotion-chip"><span>다음 승급</span><strong id="nextPromotionRank">-</strong></div>
+        </div>
+        <p class="promotion-grade-line">적용 직급 <strong id="promotionGrade">-</strong></p>
+        <label for="promotionDate">진급일</label><input id="promotionDate" type="text" placeholder="26.06.19">
+        <button class="secondary-btn" id="savePromotionBtn">진급 저장</button>
+      </div>
+    <section class="home-block" id="homeEventBlock">
+      <div class="home-block-head"><h2>현재 진행 중인 이벤트</h2></div>
+      <div class="home-event-list" id="homeEventList"></div>
+    </section>
+    <section class="home-block" id="homeQuickBlock">
+      <div class="home-block-head"><h2>바로가기</h2></div>
+      <div class="home-quick single"><button class="home-quick-btn" id="quickGuildBtn">길드 인사</button></div>
+    </section>
+    <section class="home-block" id="homeManageBlock">
+      <div class="home-block-head"><h2>관리하기</h2></div>
+      <div class="home-quick three">
+        <button class="home-quick-btn" id="quickManageBtn">인사 관리</button>
+        <button class="home-quick-btn" id="quickDragonManageBtn">용의 협곡 관리</button>
+        <button class="home-quick-btn" id="quickEventManageBtn">이벤트 관리</button>
+      </div>
+    </section>
+    <section id="guildGreeting" class="flat-section" style="display:none"><div class="flat-head"><h2><button class="page-back" type="button" aria-label="뒤로가기">‹</button>길드 인사</h2><span id="memberCount">0명</span></div><div class="table-wrap"><table class="guild-table"><thead><tr><th>닉네임</th><th>직책</th><th>직급</th><th>승급</th><th>가입일</th><th>상세</th></tr></thead><tbody id="memberTable"></tbody></table></div></section>
+    <section id="manageSection" class="flat-section" style="display:none"><div class="flat-head"><h2><button class="page-back" type="button" aria-label="뒤로가기">‹</button>인사 관리</h2><span>길드원 정보 수정</span></div>
+      <div class="sub-tabs" id="manageTabs"><button class="sub-tab active" id="activeTabBtn" data-tab="active">관리</button><button class="sub-tab" id="withdrawTabBtn" data-tab="withdraw">탈퇴</button><span class="tab-indicator" id="manageTabIndicator"></span></div>
+      <div id="activeManagePanel" class="tab-panel active"><div class="table-wrap"><table class="guild-table"><thead><tr><th>닉네임</th><th>직책</th><th>직급</th><th>승급</th><th>가입일</th><th>수정</th></tr></thead><tbody id="manageTable"></tbody></table></div></div>
+      <div id="withdrawManagePanel" class="tab-panel"><div class="table-wrap"><table class="withdraw-table"><thead><tr><th>닉네임</th><th>직책</th><th>직급</th><th>승급</th><th>가입일</th><th>관리</th></tr></thead><tbody id="withdrawTable"></tbody></table></div></div>
+      <div id="editPanel" class="edit-panel" style="display:none">
+        <div class="flat-subhead"><h3><span id="editTargetName">길드원</span> 관리</h3><button class="text-btn" id="closeEditBtn">닫기</button></div>
+        <div class="flat-subhead"><h3>기본 정보 관리</h3></div>
+        <div class="table-wrap"><table class="basic-table"><thead><tr><th>닉네임</th><th>직책</th><th>직급</th><th>승급</th><th>관리</th></tr></thead><tbody id="basicInfoTable"></tbody></table></div>
+        <div id="basicEditForm" class="compact-form">
+          <label for="editNickname">닉네임</label><input id="editNickname" type="text" placeholder="닉네임">
+          <label for="editPosition">직책</label><select id="editPosition"></select>
+          <label for="editGrade">직급</label><select id="editGrade"></select>
+          <label for="editRank">승급</label><select id="editRank"></select>
+          <button class="secondary-btn" id="saveManageBtn">기본 정보 저장</button>
+          <p class="small-note">직책은 대표, 부대표, 사원 중 선택합니다. 승급을 바꾸면 직급이 자동 적용되고 오늘 날짜로 진급 이력이 자동 추가됩니다.</p>
+        </div>
+        <div class="flat-subhead"><h3>진급 이력 관리</h3><button class="text-btn" id="addHistoryBtn">+ 추가</button></div>
+        <div id="addHistoryForm" class="inline-editor">
+          <label for="newHistoryDate">진급일</label><input id="newHistoryDate" type="text" placeholder="26.06.19">
+          <label for="newHistoryRank">승급</label><select id="newHistoryRank"></select>
+          <div class="auto-grade">직급 <strong id="newHistoryGrade">사원</strong></div>
+          <button class="secondary-btn" id="saveNewHistoryBtn">진급 이력 추가</button>
+        </div>
+        <div class="table-wrap"><table class="history-table"><thead><tr><th>진급일</th><th>직급</th><th>승급</th><th>관리</th></tr></thead><tbody id="historyManageTable"></tbody></table></div>
+        <div class="flat-subhead"><h3>가입 이력 관리</h3><button class="text-btn" id="addMemberHistoryBtn">+ 추가</button></div>
+        <div id="addMemberHistoryForm" class="inline-editor">
+          <label for="newMemberHistoryType">구분</label><select id="newMemberHistoryType"><option value="가입">가입</option><option value="탈퇴">탈퇴</option><option value="복귀">복귀</option></select>
+          <label for="newMemberHistoryDate">날짜</label><input id="newMemberHistoryDate" type="text" placeholder="26.06.19">
+          <button class="secondary-btn" id="saveNewMemberHistoryBtn">가입 이력 추가</button>
+        </div>
+        <div class="table-wrap"><table class="member-history-table"><thead><tr><th>구분</th><th>날짜</th><th>관리</th></tr></thead><tbody id="memberHistoryManageTable"></tbody></table></div>
+      </div>
+      <div id="withdrawViewPanel" class="edit-panel" style="display:none">
+        <div class="flat-subhead"><h3><span id="withdrawTargetName">탈퇴자</span> 인사 기록</h3><button class="text-btn" id="closeWithdrawViewBtn">닫기</button></div>
+        <div class="flat-subhead"><h3>기본 정보</h3></div>
+        <div class="table-wrap"><table class="guild-table"><thead><tr><th>닉네임</th><th>직책</th><th>직급</th><th>승급</th><th>가입일</th><th></th></tr></thead><tbody id="withdrawBasicTable"></tbody></table></div>
+        <div class="flat-subhead"><h3>진급 이력</h3></div>
+        <div class="table-wrap"><table class="detail-table"><thead><tr><th>진급일</th><th>직급</th><th>승급</th></tr></thead><tbody id="withdrawHistoryTable"></tbody></table></div>
+        <div class="flat-subhead"><h3>가입 이력</h3></div>
+        <div class="table-wrap"><table class="member-history-view-table"><thead><tr><th>구분</th><th>날짜</th></tr></thead><tbody id="withdrawMemberHistoryTable"></tbody></table></div>
+      </div>
+    </section>
+    <section id="dragonCanyon" class="flat-section dragon-section" style="display:none">
+      <div class="flat-head"><h2><button class="page-back" type="button" aria-label="뒤로가기">‹</button>용의 협곡</h2><span id="dragonCanyonHeadLabel">주간 참여</span></div>
+      <div class="sub-tabs" id="dragonCanyonTabs"><button class="sub-tab active" id="dragonCanyonJoinTabBtn" data-tab="join">참여</button><button class="sub-tab" id="dragonCanyonPlacementTabBtn" data-tab="placement">배치</button><span class="tab-indicator" id="dragonCanyonTabIndicator"></span></div>
+      <div id="dragonCanyonJoinPanel" class="tab-panel active">
+        <div class="dragon-week-label" id="dragonWeekLabel">시즌 1 · 1주차</div>
+        <div class="dragon-week" id="dragonWeek"></div>
+        <div class="flat-subhead"><h3>기록</h3></div>
+        <div class="dragon-records" id="dragonRecords"></div>
+        <div class="dragon-record-detail" id="dragonRecordDetail"></div>
+      </div>
+      <div id="dragonCanyonPlacementPanel" class="tab-panel">
+        <div class="dragon-week-label" id="dragonCurrentPlacementLabel">시즌 1 · 1주차</div>
+        <div class="flat-subhead"><h3>현재 배치</h3></div>
+        <div id="dragonCurrentPlacementBox"></div>
+      </div>
+    </section>
+    <section id="dragonManage" class="flat-section dragon-section" style="display:none">
+      <div class="flat-head"><h2><button class="page-back" type="button" aria-label="뒤로가기">‹</button>용의 협곡 관리</h2><span>관리 설정</span></div>
+      <div class="sub-tabs three" id="dragonManageTabs"><button class="sub-tab active" id="dragonSeasonTabBtn" data-tab="season">시즌</button><button class="sub-tab" id="dragonParticipantTabBtn" data-tab="participant">참여자</button><button class="sub-tab" id="dragonPlacementTabBtn" data-tab="placement">배치</button><span class="tab-indicator" id="dragonManageTabIndicator"></span></div>
+      <div id="dragonSeasonPanel" class="tab-panel active">
+        <div class="flat-subhead"><h3>시즌 목록</h3><button class="text-btn" id="addDragonSeasonBtn">+ 추가</button></div>
+        <div id="dragonSeasonForm" class="inline-editor">
+          <label for="dragonSeasonNumber">시즌</label><input id="dragonSeasonNumber" type="number" min="1" placeholder="1">
+          <label for="dragonSeasonStart">시작일</label><input id="dragonSeasonStart" type="text" placeholder="2026-06-15 또는 26.06.15">
+          <label for="dragonSeasonEnd">종료일</label><input id="dragonSeasonEnd" type="text" placeholder="2026-07-12 또는 26.07.12">
+          <div class="image-tool">
+            <label for="dragonSeasonImageInput">용의 협곡 카드 이미지</label><input id="dragonSeasonImageInput" type="file" accept="image/*">
+            <div id="dragonSeasonImagePreview" class="event-image-preview"><span class="preview-text">이미지를 올리면 홈 용의 협곡 카드 배경으로 표시됩니다.</span></div>
+            <div class="range-grid">
+              <label>확대/축소<input id="dragonSeasonImageZoom" type="range" min="100" max="260" value="130"></label>
+              <label>가로 위치<input id="dragonSeasonImageX" type="range" min="0" max="100" value="50"></label>
+              <label>세로 위치<input id="dragonSeasonImageY" type="range" min="0" max="100" value="50"></label>
+            </div>
+            <div class="image-actions"><button type="button" class="text-btn danger-btn" id="removeDragonSeasonImageBtn">이미지 제거</button></div>
+            <p class="small-note">업로드 후 확대/축소와 위치를 조절하면 홈 카드에 보일 영역을 맞출 수 있습니다.</p>
+          </div>
+          <button class="secondary-btn" id="saveDragonSeasonBtn">시즌 저장</button>
+        </div>
+        <div class="table-wrap"><table class="season-table"><thead><tr><th>시즌</th><th>시작일</th><th>종료일</th><th>관리</th></tr></thead><tbody id="dragonSeasonTable"></tbody></table></div>
+      </div>
+      <div id="dragonParticipantPanel" class="tab-panel">
+        <div class="dragon-week-label" id="dragonParticipantWeekLabel">시즌 1 · 1주차</div>
+        <div class="table-wrap"><table class="dragon-participant-table"><thead><tr><th>요일</th><th>콘텐츠</th><th>참여</th><th>미참여</th><th>상세</th></tr></thead><tbody id="dragonParticipantTable"></tbody></table></div>
+        <div class="dragon-record-detail" id="dragonParticipantDetail"></div>
+        <div class="flat-subhead"><h3>기록</h3></div>
+        <div class="dragon-records" id="dragonParticipantRecords"></div>
+        <div class="dragon-record-detail" id="dragonParticipantRecordDetail"></div>
+      </div>
+      <div id="dragonPlacementPanel" class="tab-panel">
+        <div class="flat-subhead"><h3>배치 목록</h3><button class="text-btn" id="addDragonPlacementBtn">+ 추가</button></div>
+        <div id="dragonPlacementForm" class="inline-editor">
+          <label for="dragonPlacementSeason">시즌</label><select id="dragonPlacementSeason"></select>
+          <label for="dragonPlacementWeek">주차</label><select id="dragonPlacementWeek"></select>
+          <button class="secondary-btn" id="autoDragonPlacementBtn">자동 배치</button>
+        </div>
+        <div class="placement-preview" id="dragonPlacementPreview"></div>
+        <div class="table-wrap"><table class="placement-table"><thead><tr><th>시즌/주차</th><th>인원</th><th>관리</th></tr></thead><tbody id="dragonPlacementTable"></tbody></table></div>
+        <div class="dragon-record-detail" id="dragonPlacementDetail"></div>
+      </div>
+    </section>
+    <section id="eventSection" class="flat-section" style="display:none">
+      <div class="flat-head"><h2><button class="page-back" type="button" aria-label="뒤로가기">‹</button>이벤트</h2><span>이벤트 목록</span></div>
+      <div class="table-wrap"><table class="event-table event-view-table"><thead><tr><th>종류</th><th>이벤트 이름</th><th>기간</th></tr></thead><tbody id="eventViewTable"></tbody></table></div>
+    </section>
+    <section id="eventManage" class="flat-section" style="display:none">
+      <div class="flat-head"><h2><button class="page-back" type="button" aria-label="뒤로가기">‹</button>이벤트 관리</h2><span>관리 설정</span></div>
+      <div class="flat-subhead"><h3>이벤트 목록</h3><button class="text-btn" id="addEventBtn">+ 추가</button></div>
+      <div id="eventForm" class="inline-editor">
+        <label for="eventType">이벤트 종류</label><select id="eventType"></select>
+        <label for="eventName">이벤트 이름</label><input id="eventName" type="text" placeholder="이벤트 이름 입력">
+        <label for="eventStart">시작일</label><input id="eventStart" type="text" placeholder="2026-06-20 또는 26.06.20">
+        <label for="eventStartTime">시작 시간</label><input id="eventStartTime" type="time">
+        <label for="eventEnd">종료일</label><input id="eventEnd" type="text" placeholder="2026-07-03 또는 26.07.03">
+        <label for="eventEndTime">종료 시간</label><input id="eventEndTime" type="time">
+        <div class="image-tool">
+          <label for="eventImageInput">이벤트 카드 이미지</label><input id="eventImageInput" type="file" accept="image/*">
+          <div id="eventImagePreview" class="event-image-preview"><span class="preview-text">이미지를 올리면 홈 이벤트 카드 배경으로 표시됩니다.</span></div>
+          <div class="range-grid">
+            <label>확대/축소<input id="eventImageZoom" type="range" min="100" max="260" value="130"></label>
+            <label>가로 위치<input id="eventImageX" type="range" min="0" max="100" value="50"></label>
+            <label>세로 위치<input id="eventImageY" type="range" min="0" max="100" value="50"></label>
+          </div>
+          <div class="image-actions"><button type="button" class="text-btn danger-btn" id="removeEventImageBtn">이미지 제거</button></div>
+          <p class="small-note">업로드 후 확대/축소와 위치를 조절하면 홈 카드에 보일 영역을 맞출 수 있습니다.</p>
+        </div>
+        <button class="secondary-btn" id="saveEventBtn">이벤트 저장</button>
+      </div>
+      <div class="table-wrap"><table class="event-table"><thead><tr><th>종류</th><th>이벤트 이름</th><th>기간</th><th>관리</th></tr></thead><tbody id="eventManageTable"></tbody></table></div>
+    </section>
+  </section>
+</main>
+<div class="drawer-backdrop" id="drawerBackdrop"></div><aside class="drawer" id="drawer"><div class="drawer-head"><strong>메뉴</strong><button class="close-btn" id="closeDrawerBtn" aria-label="닫기">×</button></div><nav class="menu-list"><button class="menu-item" data-target="guildGreeting">길드 인사</button><button class="menu-item" data-target="manageSection">인사 관리</button><button class="menu-item" data-target="dragonCanyon">용의 협곡</button><button class="menu-item" data-target="dragonManage">용의 협곡 관리</button><button class="menu-item" data-target="eventSection">이벤트</button><button class="menu-item" data-target="eventManage">이벤트 관리</button></nav></aside>
+<script>
+const rankList=['스톤','브론즈','아이언','실버','골드','미스릴','오리하르콘','아케이나이트','아다만타이트','에테르','블랙미스릴','데몬메탈','드라고노스','라그나블러드','워프로스트','다크녹스','블루어비스','인피넌트','사이클로스','에이션트케나인','기가로크','아이젠하르트','다이아더스트','엘든우드','블리츠골드'];
+const gradeList=['인턴','사원','주임','대리','과장','차장','부장','팀장','실장','이사','상무','전무','사장'];
+const positionList=['대표','부대표','사원'];
+const gradeRankMap={'인턴':'스톤','사원':'라그나블러드','주임':'워프로스트','대리':'다크녹스','과장':'블루어비스','차장':'인피넌트','부장':'사이클로스','팀장':'에이션트케나인','실장':'기가로크','이사':'아이젠하르트','상무':'다이아더스트','전무':'엘든우드','사장':'블리츠골드'};
+const rankGradeMap=Object.fromEntries(Object.entries(gradeRankMap).map(([g,r])=>[r,g]));
+const $=id=>document.getElementById(id); const storageKey='yuilGuildMembersV1'; let editingMemberIndex=null;
+function fillRanks(el){el.innerHTML=rankList.map(r=>`<option value="${r}">${r}</option>`).join('')}
+function fillGrades(el){el.innerHTML=gradeList.map(g=>`<option value="${g}">${g}</option>`).join('')}
+function fillPositions(el){el.innerHTML=positionList.map(p=>`<option value="${p}">${p}</option>`).join('')}
+function gradeFromRank(rank){const base=rankList.indexOf('라그나블러드'),idx=rankList.indexOf(rank); if(idx>=0&&idx<base)return '인턴'; return rankGradeMap[rank]||'사원'}
+function rankFromGrade(grade){return gradeRankMap[grade]||'라그나블러드'}
+function todayText(){const d=new Date();return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`}
+function dateValue(text){const parts=String(text||'').trim().split('.').map(v=>parseInt(v,10)); if(parts.length!==3||parts.some(Number.isNaN))return 0; const year=parts[0]<100?2000+parts[0]:parts[0]; return new Date(year,parts[1]-1,parts[2]).getTime()||0}
+function sortPromotionHistory(m){if(!m||!Array.isArray(m.history))return m; m.history.sort((a,b)=>dateValue(b.date)-dateValue(a.date)); return m}
+function normalizePosition(p){return positionList.includes(p)?p:'사원'}
+function normalizeMember(m){if(!m)return m; if(!rankList.includes(m.rank))m.rank=rankFromGrade(m.grade); m.grade=gradeFromRank(m.rank); m.position=normalizePosition(m.position); if(!m.status)m.status='active'; if(m.status!=='withdrawn')m.status='active'; if(m.withdrawDate===undefined)m.withdrawDate=''; ensureHistory(m); syncFromLatestHistory(m); ensureMemberHistory(m); return m}
+function ensureHistory(m){if(!Array.isArray(m.history))m.history=[]; if(!m.history.length)m.history.push({date:m.joinDate||todayText(),rank:m.rank||'라그나블러드',grade:gradeFromRank(m.rank||'라그나블러드')}); m.history=m.history.filter(h=>h&&h.rank&&rankList.includes(h.rank)).map(h=>({date:h.date||todayText(),rank:h.rank,grade:gradeFromRank(h.rank)})); sortPromotionHistory(m); return m}
+function ensureMemberHistory(m){if(!Array.isArray(m.memberHistory))m.memberHistory=[]; if(!m.memberHistory.length){m.memberHistory.push({type:'가입',date:m.joinDate||todayText()}); if(m.withdrawDate)m.memberHistory.push({type:'탈퇴',date:m.withdrawDate})} m.memberHistory=m.memberHistory.filter(h=>h&&['가입','탈퇴','복귀'].includes(h.type)).map(h=>({type:h.type,date:h.date||todayText()})); return m}
+function latestJoinDate(m){ensureMemberHistory(m); const joins=m.memberHistory.filter(h=>h.type==='가입'||h.type==='복귀'); return (joins.length?joins[joins.length-1].date:m.joinDate)||todayText()}
+function loadMembers(){try{const members=JSON.parse(localStorage.getItem(storageKey))||[]; let changed=false; members.forEach(m=>{const before=JSON.stringify(m); normalizeMember(m); if(before!==JSON.stringify(m))changed=true}); if(changed)saveMembers(members); return members}catch{return[]}}
+function saveMembers(members){localStorage.setItem(storageKey,JSON.stringify(members))}
+function activeMembersWithIndex(){return loadMembers().map((m,i)=>({m,i})).filter(x=>x.m.status!=='withdrawn')}
+function withdrawnMembersWithIndex(){return loadMembers().map((m,i)=>({m,i})).filter(x=>x.m.status==='withdrawn')}
+function currentMember(){const active=activeMembersWithIndex();return active.length?active[active.length-1].m:(loadMembers().slice(-1)[0]||null)}
+function syncFromLatestHistory(m){ensureHistory(m); sortPromotionHistory(m); if(m.history.length){const latest=m.history[0]; m.rank=latest.rank; m.grade=gradeFromRank(latest.rank)} return m}
+function renderCurrentUser(m){$('userName').textContent=m.nickname;$('userPosition').textContent=m.position;$('userGrade').textContent=m.grade}
+function memberHistoryRows(m, editable=false){ensureMemberHistory(m); if(!m.memberHistory.length)return editable?'<tr><td colspan="3" class="empty-message">가입 이력이 없습니다.</td></tr>':'<tr><td colspan="2" class="empty-message">가입 이력이 없습니다.</td></tr>'; if(!editable)return m.memberHistory.map(h=>`<tr><td>${h.type}</td><td class="thin">${h.date}</td></tr>`).join(''); return m.memberHistory.map((h,i)=>`<tr><td>${h.type}</td><td class="thin">${h.date}</td><td><div class="actions"><button class="detail-btn member-history-edit" data-index="${i}">수정</button><button class="detail-btn danger-btn member-history-delete" data-index="${i}">삭제</button></div></td></tr><tr class="inline-row" id="memberHistoryEdit-${i}"><td colspan="3" class="inline-box"><div class="inline-inner"><label for="memberHistoryType-${i}">구분</label><select id="memberHistoryType-${i}"><option value="가입" ${h.type==='가입'?'selected':''}>가입</option><option value="탈퇴" ${h.type==='탈퇴'?'selected':''}>탈퇴</option><option value="복귀" ${h.type==='복귀'?'selected':''}>복귀</option></select><label for="memberHistoryDate-${i}">날짜</label><input id="memberHistoryDate-${i}" type="text" value="${h.date}" placeholder="26.06.19"><button class="secondary-btn member-history-save" data-index="${i}">이력 저장</button></div></td></tr>`).join('')}
+function renderTable(){const rows=activeMembersWithIndex();$('memberCount').textContent=`${rows.length}명`; if(!rows.length){$('memberTable').innerHTML='<tr><td colspan="6" class="empty-message">아직 가입된 길드 인사가 없습니다.</td></tr>';return} $('memberTable').innerHTML=rows.map(({m,i})=>`<tr><td>${m.nickname}</td><td>${m.position}</td><td>${m.grade}</td><td>${m.rank}</td><td class="thin">${latestJoinDate(m)}</td><td><button class="detail-btn detail-open" data-index="${i}">보기</button></td></tr><tr class="detail-row" id="detail-${i}"><td colspan="6" class="detail-box"><div class="history-box"><p class="history-title">진급 이력</p><table class="detail-table"><thead><tr><th>진급일</th><th>직급</th><th>승급</th></tr></thead><tbody>${m.history.map(h=>`<tr><td class="thin">${h.date}</td><td>${gradeFromRank(h.rank)}</td><td>${h.rank}</td></tr>`).join('')}</tbody></table><p class="history-title" style="margin-top:16px">가입 이력</p><table class="detail-table member-history-view-table"><thead><tr><th>구분</th><th>날짜</th></tr></thead><tbody>${memberHistoryRows(m,false)}</tbody></table></div></td></tr>`).join(''); document.querySelectorAll('.detail-open').forEach(btn=>btn.onclick=()=>{const row=$(`detail-${btn.dataset.index}`);row.classList.toggle('open');btn.textContent=row.classList.contains('open')?'닫기':'보기'})}
+function renderManageTable(){const rows=activeMembersWithIndex(); if(!rows.length){$('manageTable').innerHTML='<tr><td colspan="6" class="empty-message">가입 중인 길드원이 없습니다.</td></tr>';return} $('manageTable').innerHTML=rows.map(({m,i})=>`<tr><td>${m.nickname}</td><td>${m.position}</td><td>${m.grade}</td><td>${m.rank}</td><td class="thin">${latestJoinDate(m)}</td><td><button class="detail-btn manage-edit" data-index="${i}">수정</button></td></tr>`).join(''); document.querySelectorAll('.manage-edit').forEach(btn=>btn.onclick=()=>openEditPanel(Number(btn.dataset.index)))}
+function renderWithdrawTable(){const rows=withdrawnMembersWithIndex(); if(!rows.length){$('withdrawTable').innerHTML='<tr><td colspan="6" class="empty-message">탈퇴 처리된 길드원이 없습니다.</td></tr>';return} $('withdrawTable').innerHTML=rows.map(({m,i})=>`<tr><td>${m.nickname}</td><td>${m.position}</td><td>${m.grade}</td><td>${m.rank}</td><td class="thin">${latestJoinDate(m)}</td><td><div class="actions"><button class="detail-btn withdraw-view" data-index="${i}">보기</button><button class="detail-btn withdraw-restore" data-index="${i}">복귀</button></div></td></tr>`).join(''); document.querySelectorAll('.withdraw-view').forEach(btn=>btn.onclick=()=>openWithdrawView(Number(btn.dataset.index))); document.querySelectorAll('.withdraw-restore').forEach(btn=>btn.onclick=()=>restoreMember(Number(btn.dataset.index)))}
+function renderBasicInfoTable(m){$('basicInfoTable').innerHTML=`<tr><td>${m.nickname}</td><td>${m.position}</td><td>${m.grade}</td><td>${m.rank}</td><td><div class="actions"><button class="detail-btn" id="openBasicEditBtn">수정</button><button class="detail-btn danger-btn" id="withdrawMemberBtn">탈퇴</button></div></td></tr>`; $('openBasicEditBtn').onclick=()=>{$('basicEditForm').classList.toggle('open')}; $('withdrawMemberBtn').onclick=withdrawMember}
+function openEditPanel(index){const members=loadMembers();const m=members[index];if(!m)return; editingMemberIndex=index; $('withdrawViewPanel').style.display='none'; $('editPanel').style.display='block'; $('basicEditForm').classList.remove('open'); $('addHistoryForm').classList.remove('open'); $('addMemberHistoryForm').classList.remove('open'); $('editTargetName').textContent=m.nickname; $('editNickname').value=m.nickname; $('editPosition').value=m.position; $('editGrade').value=m.grade; $('editRank').value=m.rank; $('newHistoryDate').value=todayText(); $('newHistoryRank').value=m.rank; $('newMemberHistoryDate').value=todayText(); $('newMemberHistoryType').value='가입'; updateNewHistoryGrade(); renderBasicInfoTable(m); renderHistoryManageTable(m); renderMemberHistoryManageTable(m); setTimeout(()=>$('editPanel').scrollIntoView({behavior:'smooth',block:'start'}),40)}
+function renderHistoryManageTable(m){ensureHistory(m); if(!m.history.length){$('historyManageTable').innerHTML='<tr><td colspan="4" class="empty-message">진급 이력이 없습니다.</td></tr>';return} $('historyManageTable').innerHTML=m.history.map((h,i)=>`<tr><td class="thin">${h.date}</td><td>${gradeFromRank(h.rank)}</td><td>${h.rank}</td><td><div class="actions"><button class="detail-btn history-edit" data-index="${i}">수정</button><button class="detail-btn danger-btn history-delete" data-index="${i}">삭제</button></div></td></tr><tr class="inline-row" id="historyEdit-${i}"><td colspan="4" class="inline-box"><div class="inline-inner"><label for="historyDate-${i}">진급일</label><input id="historyDate-${i}" type="text" value="${h.date}" placeholder="26.06.19"><label for="historyRank-${i}">승급</label><select id="historyRank-${i}">${rankList.map(r=>`<option value="${r}" ${r===h.rank?'selected':''}>${r}</option>`).join('')}</select><div class="auto-grade">직급 <strong id="historyGrade-${i}">${gradeFromRank(h.rank)}</strong></div><button class="secondary-btn history-save" data-index="${i}">이력 저장</button></div></td></tr>`).join(''); document.querySelectorAll('.history-edit').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('.inline-row').forEach(r=>r.classList.remove('open'));$(`historyEdit-${btn.dataset.index}`).classList.add('open')}); document.querySelectorAll('.history-delete').forEach(btn=>btn.onclick=()=>deleteHistory(Number(btn.dataset.index))); document.querySelectorAll('.history-save').forEach(btn=>btn.onclick=()=>saveHistoryEdit(Number(btn.dataset.index))); m.history.forEach((h,i)=>{const s=$(`historyRank-${i}`); if(s)s.onchange=()=>$(`historyGrade-${i}`).textContent=gradeFromRank(s.value)})}
+function openWithdrawView(index){const members=loadMembers();const m=members[index];if(!m)return; ensureHistory(m); $('editPanel').style.display='none'; editingMemberIndex=null; $('withdrawViewPanel').style.display='block'; $('withdrawTargetName').textContent=m.nickname; $('withdrawBasicTable').innerHTML=`<tr><td>${m.nickname}</td><td>${m.position}</td><td>${m.grade}</td><td>${m.rank}</td><td class="thin">${latestJoinDate(m)}</td><td></td></tr>`; $('withdrawHistoryTable').innerHTML=m.history.map(h=>`<tr><td class="thin">${h.date}</td><td>${gradeFromRank(h.rank)}</td><td>${h.rank}</td></tr>`).join('')||'<tr><td colspan="3" class="empty-message">진급 이력이 없습니다.</td></tr>'; $('withdrawMemberHistoryTable').innerHTML=memberHistoryRows(m,false); setTimeout(()=>$('withdrawViewPanel').scrollIntoView({behavior:'smooth',block:'start'}),40)}
+function closeAllOpenPanels(){
+  editingMemberIndex=null;
+  $('editPanel').style.display='none';
+  $('withdrawViewPanel').style.display='none';
+  $('basicEditForm').classList.remove('open');
+  $('addHistoryForm').classList.remove('open');
+  $('addMemberHistoryForm').classList.remove('open');
+  document.querySelectorAll('.detail-row,.inline-row').forEach(row=>row.classList.remove('open'));
+  document.querySelectorAll('.detail-open').forEach(btn=>btn.textContent='보기');
+  if($('eventForm')){$('eventForm').classList.remove('open');resetEventForm()}
+  if($('dragonSeasonForm')){$('dragonSeasonForm').classList.remove('open');resetDragonSeasonForm()}
+  if($('dragonRecordDetail')){$('dragonRecordDetail').classList.remove('open');$('dragonRecordDetail').innerHTML=''}
+  if($('dragonParticipantDetail')){$('dragonParticipantDetail').classList.remove('open');$('dragonParticipantDetail').innerHTML=''}
+  if($('dragonParticipantRecordDetail')){$('dragonParticipantRecordDetail').classList.remove('open');$('dragonParticipantRecordDetail').innerHTML=''}
+  if($('dragonPlacementForm')){$('dragonPlacementForm').classList.remove('open');resetDragonPlacementForm()}
+  if($('dragonPlacementPreview')){$('dragonPlacementPreview').classList.remove('open');$('dragonPlacementPreview').innerHTML=''}
+  if($('dragonPlacementDetail')){$('dragonPlacementDetail').classList.remove('open');$('dragonPlacementDetail').innerHTML=''}
+  if($('promotionPanel')){$('promotionPanel').classList.remove('open')}
+}
+function nextRankOf(rank){const idx=rankList.indexOf(rank); return idx>=0&&idx<rankList.length-1?rankList[idx+1]:null}
+function openPromotionPanel(){
+  const rec=currentMemberRecord();
+  if(!rec||!rec.m){alert('진급할 길드원이 없습니다.');return}
+  const m=rec.m;
+  const next=nextRankOf(m.rank);
+  $('promotionPanel').classList.add('open');
+  $('currentPromotionRank').textContent=m.rank;
+  $('nextPromotionRank').textContent=next||'최고 승급';
+  $('promotionGrade').textContent=next?gradeFromRank(next):m.grade;
+  $('promotionDate').value=todayText();
+  $('savePromotionBtn').disabled=!next;
+  $('savePromotionBtn').style.opacity=next?'1':'.45';
+  if(!next)alert('이미 최고 승급입니다.');
+  setTimeout(()=>$('promotionPanel').scrollIntoView({behavior:'smooth',block:'nearest'}),40);
+}
+function savePromotion(){
+  const rec=currentMemberRecord();
+  if(!rec||!rec.m)return;
+  const members=loadMembers();
+  const m=members[rec.i];
+  if(!m)return;
+  const next=nextRankOf(m.rank);
+  if(!next){alert('이미 최고 승급입니다.');return}
+  const date=$('promotionDate').value.trim()||todayText();
+  m.history.push({date,rank:next,grade:gradeFromRank(next)});
+  syncFromLatestHistory(m);
+  members[rec.i]=m;
+  saveMembers(members);
+  $('promotionPanel').classList.remove('open');
+  refreshAll(false);
+  alert('진급 이력이 저장되었습니다.');
+}
+
+function setManageTab(tab){const isWithdraw=tab==='withdraw'; closeAllOpenPanels(); $('activeTabBtn').classList.toggle('active',!isWithdraw); $('withdrawTabBtn').classList.toggle('active',isWithdraw); $('activeManagePanel').classList.toggle('active',!isWithdraw); $('withdrawManagePanel').classList.toggle('active',isWithdraw); $('manageTabIndicator').style.transform=isWithdraw?'translateX(100%)':'translateX(0)'; $('manageTabIndicator').style.width='50%'; renderManageTable(); renderWithdrawTable()}
+function refreshAll(keepPanel=true){const members=loadMembers();const cur=currentMember(); if(cur)renderCurrentUser(cur); renderTable();renderManageTable();renderWithdrawTable();renderEvents(); if(keepPanel&&editingMemberIndex!==null&&members[editingMemberIndex]){renderBasicInfoTable(members[editingMemberIndex]);renderHistoryManageTable(members[editingMemberIndex]);renderMemberHistoryManageTable(members[editingMemberIndex]);$('editTargetName').textContent=members[editingMemberIndex].nickname}}
+function saveBasicInfo(){if(editingMemberIndex===null)return; const members=loadMembers();const m=members[editingMemberIndex];if(!m)return; const oldRank=m.rank; m.nickname=$('editNickname').value.trim()||m.nickname; m.position=normalizePosition($('editPosition').value); m.rank=$('editRank').value; m.grade=gradeFromRank(m.rank); if(oldRank!==m.rank)m.history.push({date:todayText(),rank:m.rank,grade:m.grade}); syncFromLatestHistory(m); members[editingMemberIndex]=m;saveMembers(members);$('basicEditForm').classList.remove('open');refreshAll(true);alert('기본 정보가 저장되었습니다.')}
+function withdrawMember(){if(editingMemberIndex===null)return; const date=prompt('탈퇴일을 입력해주세요.',todayText()); if(date===null)return; if(!confirm('이 길드원을 탈퇴 처리하시겠습니까?'))return; const members=loadMembers();const m=members[editingMemberIndex]; if(!m)return; const d=(date.trim()||todayText()); m.status='withdrawn'; m.withdrawDate=d; ensureMemberHistory(m); m.memberHistory.push({type:'탈퇴',date:d}); members[editingMemberIndex]=m; saveMembers(members); $('editPanel').style.display='none'; editingMemberIndex=null; setManageTab('withdraw'); refreshAll(false)}
+function restoreMember(index){const members=loadMembers();const m=members[index]; if(!m)return; const date=prompt('복귀일을 입력해주세요.',todayText()); if(date===null)return; if(!confirm(`${m.nickname}님을 복귀 처리하시겠습니까?`))return; const d=(date.trim()||todayText()); m.status='active'; m.withdrawDate=''; ensureMemberHistory(m); m.memberHistory.push({type:'복귀',date:d}); members[index]=m; saveMembers(members); setManageTab('active'); refreshAll(false)}
+function updateNewHistoryGrade(){$('newHistoryGrade').textContent=gradeFromRank($('newHistoryRank').value)}
+function addHistory(){if(editingMemberIndex===null)return; const members=loadMembers();const m=members[editingMemberIndex]; if(!m)return; const rank=$('newHistoryRank').value; m.history.push({date:$('newHistoryDate').value.trim()||todayText(),rank,grade:gradeFromRank(rank)}); syncFromLatestHistory(m); members[editingMemberIndex]=m;saveMembers(members);$('addHistoryForm').classList.remove('open');refreshAll(true)}
+function saveHistoryEdit(index){if(editingMemberIndex===null)return; const members=loadMembers();const m=members[editingMemberIndex]; if(!m||!m.history[index])return; const rank=$(`historyRank-${index}`).value; m.history[index]={date:$(`historyDate-${index}`).value.trim()||todayText(),rank,grade:gradeFromRank(rank)}; syncFromLatestHistory(m);members[editingMemberIndex]=m;saveMembers(members);refreshAll(true)}
+function deleteHistory(index){if(editingMemberIndex===null)return; if(!confirm('이 진급 이력을 삭제하시겠습니까?'))return; const members=loadMembers();const m=members[editingMemberIndex]; if(!m||!m.history[index])return; m.history.splice(index,1); if(m.history.length)syncFromLatestHistory(m); members[editingMemberIndex]=m;saveMembers(members);refreshAll(true)}
+function renderMemberHistoryManageTable(m){ensureMemberHistory(m); $('memberHistoryManageTable').innerHTML=memberHistoryRows(m,true); document.querySelectorAll('.member-history-edit').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('[id^="memberHistoryEdit-"]').forEach(r=>r.classList.remove('open')); $(`memberHistoryEdit-${btn.dataset.index}`).classList.add('open')}); document.querySelectorAll('.member-history-delete').forEach(btn=>btn.onclick=()=>deleteMemberHistory(Number(btn.dataset.index))); document.querySelectorAll('.member-history-save').forEach(btn=>btn.onclick=()=>saveMemberHistoryEdit(Number(btn.dataset.index)))}
+function addMemberHistory(){if(editingMemberIndex===null)return; const members=loadMembers();const m=members[editingMemberIndex]; if(!m)return; ensureMemberHistory(m); m.memberHistory.push({type:$('newMemberHistoryType').value,date:$('newMemberHistoryDate').value.trim()||todayText()}); members[editingMemberIndex]=m;saveMembers(members);$('addMemberHistoryForm').classList.remove('open');refreshAll(true)}
+function saveMemberHistoryEdit(index){if(editingMemberIndex===null)return; const members=loadMembers();const m=members[editingMemberIndex]; if(!m||!m.memberHistory[index])return; m.memberHistory[index]={type:$(`memberHistoryType-${index}`).value,date:$(`memberHistoryDate-${index}`).value.trim()||todayText()}; members[editingMemberIndex]=m;saveMembers(members);refreshAll(true)}
+function deleteMemberHistory(index){if(editingMemberIndex===null)return; if(!confirm('이 가입 이력을 삭제하시겠습니까?'))return; const members=loadMembers();const m=members[editingMemberIndex]; if(!m||!m.memberHistory[index])return; m.memberHistory.splice(index,1); members[editingMemberIndex]=m;saveMembers(members);refreshAll(true)}
+
+const dragonStorageKey='yuilDragonCanyonV1';
+const dragonSeasonStorageKey='yuilDragonSeasonsV1';
+let editingDragonSeasonId=null,dragonSeasonImageData='',dragonSeasonImageX=50,dragonSeasonImageY=50,dragonSeasonImageZoom=130;
+function mondayOfWeek(date){const d=new Date(date);const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);d.setHours(0,0,0,0);return d}
+function dragonDateKey(date){return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`}
+function dragonParseDate(key){const [y,m,d]=key.split('-').map(Number);const date=new Date(y,m-1,d);date.setHours(0,0,0,0);return date}
+function dragonWeekKeyFromMonday(mon){return dragonDateKey(mon)}
+function loadDragon(){try{return JSON.parse(localStorage.getItem(dragonStorageKey)||'{}')}catch(e){return {}}}
+function saveDragon(data){localStorage.setItem(dragonStorageKey,JSON.stringify(data))}
+function dragonWeekDates(mon){return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d})}
+function parseDragonAnyDate(v){
+  if(!v)return null; const s=String(v).trim();
+  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); if(m)return dragonDateKey(new Date(+m[1],+m[2]-1,+m[3]));
+  m=s.match(/^(\d{2})[.\/-](\d{1,2})[.\/-](\d{1,2})$/); if(m)return dragonDateKey(new Date(2000+ +m[1],+m[2]-1,+m[3]));
+  return null;
+}
+function displayDragonDate(key){if(!key)return ''; const d=dragonParseDate(key); return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`}
+function loadDragonSeasons(){try{return JSON.parse(localStorage.getItem(dragonSeasonStorageKey)||'[]').filter(s=>s&&s.season&&s.start&&s.end).sort((a,b)=>dragonParseDate(b.start)-dragonParseDate(a.start))}catch(e){return []}}
+function saveDragonSeasons(list){localStorage.setItem(dragonSeasonStorageKey,JSON.stringify(list))}
+function dragonSeasonForDate(date){const key=dragonDateKey(date); return loadDragonSeasons().find(s=>s.start<=key&&key<=s.end)||null}
+function dragonWeekLabel(mon){
+  const season=dragonSeasonForDate(mon)||dragonSeasonForDate(new Date(mon.getTime()+3*86400000));
+  if(!season)return '시즌 1 · 1주차';
+  const startMon=mondayOfWeek(dragonParseDate(season.start));
+  const week=Math.max(1,Math.floor((mon-startMon)/604800000)+1);
+  return `시즌 ${season.season} · ${week}주차`;
+}
+function currentDragonMonday(){const today=new Date();today.setHours(0,0,0,0);return mondayOfWeek(today)}
+function currentDragonWeekLabel(){return dragonWeekLabel(currentDragonMonday())}
+function currentDragonSeasonWeekInfo(){
+  const mon=currentDragonMonday();
+  const season=dragonSeasonForDate(mon)||dragonSeasonForDate(new Date(mon.getTime()+3*86400000));
+  if(!season)return {season:null,week:1,label:'시즌 1 · 1주차'};
+  const startMon=mondayOfWeek(dragonParseDate(season.start));
+  const week=Math.max(1,Math.floor((mon-startMon)/604800000)+1);
+  return {season,week,label:`시즌 ${season.season} · ${week}주차`};
+}
+function syncDragonWeekLabels(){
+  const label=currentDragonWeekLabel();
+  ['dragonWeekLabel','dragonParticipantWeekLabel','dragonCurrentPlacementLabel'].forEach(id=>{const el=$(id); if(el)el.textContent=label});
+}
+function currentMemberId(){const m=currentMember();return m&&m.id?String(m.id):'guest'}
+function dragonEntryForDate(data,key){const raw=data[key]; if(raw&&typeof raw==='object'&&!Array.isArray(raw))return raw; if(raw===true)return {[currentMemberId()]:true}; return {}}
+function isDragonJoined(data,date,member){if(!member||!member.id)return false; const entry=dragonEntryForDate(data,dragonDateKey(date)); return entry[String(member.id)]===true}
+function dragonStatusForDate(data,d,i){if(i===0)return null; const m=currentMember(); if(!m)return false; return isDragonJoined(data,d,m)}
+function setDragonCurrentMemberStatus(dateKey,value){const data=loadDragon(); const entry=dragonEntryForDate(data,dateKey); const id=currentMemberId(); if(value)entry[id]=true; else delete entry[id]; data[dateKey]=entry; saveDragon(data)}
+function dragonWeekTable(mon,mode='current'){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const days=['월','화','수','목','금','토','일'];
+  const contents=['탑승','탐사','탐사','탐사','토벌','토벌','토벌'];
+  const data=loadDragon();
+  const dates=dragonWeekDates(mon);
+  const readonly=mode==='view';
+  const dayDateRow=`<div class="dragon-row">${dates.map((d,i)=>`<div class="dragon-cell"><span class="dragon-daydate ${d.getTime()===today.getTime()?'today':''}"><span class="dd-day">${days[i]}</span><span class="dd-date">${d.getDate()}</span></span></div>`).join('')}</div>`;
+  const contentRow=`<div class="dragon-row">${contents.map(c=>`<div class="dragon-cell content">${c}</div>`).join('')}</div>`;
+  const statusRow=`<div class="dragon-row">${dates.map((d,i)=>{if(i===0)return `<div class="dragon-cell"><span class="dragon-status">-</span></div>`;const joined=dragonStatusForDate(data,d,i);const label=joined?'참여':'미참여'; if(readonly)return `<div class="dragon-cell"><span class="dragon-status ${joined?'joined':''}">${label}</span></div>`; return `<div class="dragon-cell"><button class="dragon-status ${joined?'joined':''}" data-date="${dragonDateKey(d)}">${label}</button></div>`}).join('')}</div>`;
+  return dayDateRow+contentRow+statusRow;
+}
+function bindDragonStatusButtons(root, after){
+  root.querySelectorAll('button.dragon-status').forEach(btn=>{btn.onclick=()=>{const data=loadDragon();const key=btn.dataset.date;const entry=dragonEntryForDate(data,key);const id=currentMemberId();setDragonCurrentMemberStatus(key,entry[id]!==true);after&&after()}});
+}
+function dragonWeeksWithRecords(currentWeekKey){
+  const data=loadDragon();
+  const set=new Map();
+  Object.keys(data).forEach(key=>{
+    const d=dragonParseDate(key); if(isNaN(d.getTime()))return;
+    const mon=mondayOfWeek(d); const wk=dragonWeekKeyFromMonday(mon);
+    if(wk!==currentWeekKey)set.set(wk,mon);
+  });
+  return Array.from(set.entries()).map(([key,mon])=>({key,mon})).sort((a,b)=>b.mon-a.mon);
+}
+function renderDragonRecords(currentWeekKey,resetDetail=true){
+  const recordEl=$('dragonRecords'); const detailEl=$('dragonRecordDetail'); if(!recordEl||!detailEl)return;
+  const weeks=dragonWeeksWithRecords(currentWeekKey);
+  if(resetDetail){detailEl.classList.remove('open'); detailEl.innerHTML=''}
+  if(!weeks.length){recordEl.innerHTML='<div class="empty-message">저장된 기록이 없습니다.</div>'; return}
+  recordEl.innerHTML=weeks.map(w=>`<div class="dragon-record-row"><strong>${dragonWeekLabel(w.mon)}</strong><div class="dragon-record-actions"><button class="text-btn dragon-view-record" data-week="${w.key}">보기</button><button class="text-btn dragon-edit-record" data-week="${w.key}">수정</button></div></div>`).join('');
+  recordEl.querySelectorAll('.dragon-view-record').forEach(btn=>btn.onclick=()=>showDragonRecord(btn.dataset.week,'view'));
+  recordEl.querySelectorAll('.dragon-edit-record').forEach(btn=>btn.onclick=()=>showDragonRecord(btn.dataset.week,'edit'));
+}
+function showDragonRecord(weekKey,mode){
+  const mon=dragonParseDate(weekKey); const detailEl=$('dragonRecordDetail'); if(!detailEl)return;
+  detailEl.classList.add('open');
+  detailEl.innerHTML=`<div class="dragon-record-title"><h3>${dragonWeekLabel(mon)} ${mode==='edit'?'수정':'기록'}</h3><button class="text-btn" id="closeDragonRecordBtn">닫기</button></div><div class="dragon-week">${dragonWeekTable(mon,mode)}</div>`;
+  $('closeDragonRecordBtn').onclick=()=>{detailEl.classList.remove('open');detailEl.innerHTML=''};
+  if(mode==='edit')bindDragonStatusButtons(detailEl,()=>{showDragonRecord(weekKey,'edit');renderDragonCanyon(false);renderDragonParticipants(false)});
+  detailEl.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function renderDragonCanyon(resetRecordDetail=true){
+  const weekEl=$('dragonWeek'); if(!weekEl)return;
+  const mon=currentDragonMonday();
+  const currentWeekKey=dragonWeekKeyFromMonday(mon);
+  syncDragonWeekLabels();
+  weekEl.innerHTML=dragonWeekTable(mon,'current');
+  bindDragonStatusButtons(weekEl,()=>{renderDragonCanyon(false);renderDragonParticipants(false)});
+  renderDragonRecords(currentWeekKey,resetRecordDetail);
+  renderCurrentDragonPlacement();
+}
+function setDragonCanyonTab(tab){
+  const isJoin=tab==='join';
+  $('dragonCanyonJoinTabBtn')?.classList.toggle('active',isJoin);
+  $('dragonCanyonPlacementTabBtn')?.classList.toggle('active',!isJoin);
+  $('dragonCanyonJoinPanel')?.classList.toggle('active',isJoin);
+  $('dragonCanyonPlacementPanel')?.classList.toggle('active',!isJoin);
+  if($('dragonCanyonTabIndicator'))$('dragonCanyonTabIndicator').style.transform=isJoin?'translateX(0)':'translateX(100%)';
+  if($('dragonCanyonHeadLabel'))$('dragonCanyonHeadLabel').textContent=isJoin?'주간 참여':'현재 배치';
+  if($('dragonRecordDetail')){$('dragonRecordDetail').classList.remove('open');$('dragonRecordDetail').innerHTML=''}
+  syncDragonWeekLabels();
+  if(isJoin)renderDragonCanyon(false); else renderCurrentDragonPlacement();
+}
+function renderCurrentDragonPlacement(){
+  const box=$('dragonCurrentPlacementBox'); if(!box)return;
+  const info=currentDragonSeasonWeekInfo();
+  const label=$('dragonCurrentPlacementLabel'); if(label)label.textContent=info.label;
+  const placements=loadDragonPlacements();
+  const current=info.season?placements.find(p=>String(p.seasonId)===String(info.season.id)&&Number(p.week)===Number(info.week)):null;
+  if(!current){box.innerHTML='<div class="empty-message">현재 주차에 저장된 배치가 없습니다.</div>';return}
+  const placed=current.teams.reduce((s,t)=>s+t.members.length,0);
+  box.innerHTML=`<div class="placement-total">총 인원 ${current.totalCount||placed}명 / 배치 인원 ${placed}명</div>${placementGridHtml(current.teams)}`;
+}
+function setDragonManageTab(tab){
+  const isSeason=tab==='season', isPart=tab==='participant', isPlacement=tab==='placement';
+  if($('dragonSeasonForm')){$('dragonSeasonForm').classList.remove('open');resetDragonSeasonForm()}
+  if($('dragonPlacementForm')){$('dragonPlacementForm').classList.remove('open');resetDragonPlacementForm()}
+  if($('dragonPlacementPreview')){$('dragonPlacementPreview').classList.remove('open');$('dragonPlacementPreview').innerHTML=''}
+  if($('dragonPlacementDetail')){$('dragonPlacementDetail').classList.remove('open');$('dragonPlacementDetail').innerHTML=''}
+  $('dragonSeasonTabBtn').classList.toggle('active',isSeason);
+  $('dragonParticipantTabBtn').classList.toggle('active',isPart);
+  $('dragonPlacementTabBtn').classList.toggle('active',isPlacement);
+  $('dragonSeasonPanel').classList.toggle('active',isSeason);
+  $('dragonParticipantPanel').classList.toggle('active',isPart);
+  $('dragonPlacementPanel').classList.toggle('active',isPlacement);
+  $('dragonManageTabIndicator').style.transform=isPart?'translateX(100%)':(isPlacement?'translateX(200%)':'translateX(0)');
+  $('dragonManageTabIndicator').style.width='33.3333%';
+  $('dragonParticipantDetail').classList.remove('open'); $('dragonParticipantDetail').innerHTML=''; $('dragonParticipantRecordDetail').classList.remove('open'); $('dragonParticipantRecordDetail').innerHTML='';
+  syncDragonWeekLabels();
+  if(isPart)renderDragonParticipants(); else if(isPlacement)renderDragonPlacements(); else renderDragonSeasons();
+}
+function dragonSeasonImageStyle(s){return s&&s.imageData?`background-image:url('${s.imageData}');background-size:${s.imageZoom||130}%;background-position:${s.imageX??50}% ${s.imageY??50}%;`:''}
+function updateDragonSeasonImagePreview(){const prev=$('dragonSeasonImagePreview'); if(!prev)return; prev.classList.toggle('has-image',!!dragonSeasonImageData); prev.style.backgroundImage=dragonSeasonImageData?`url('${dragonSeasonImageData}')`:''; prev.style.backgroundSize=`${dragonSeasonImageZoom}%`; prev.style.backgroundPosition=`${dragonSeasonImageX}% ${dragonSeasonImageY}%`; prev.innerHTML=`<span class="preview-text">${dragonSeasonImageData?'카드에 보일 영역을 조절해주세요.':'이미지를 올리면 홈 용의 협곡 카드 배경으로 표시됩니다.'}</span>`}
+function resetDragonSeasonImage(){dragonSeasonImageData='';dragonSeasonImageX=50;dragonSeasonImageY=50;dragonSeasonImageZoom=130; if($('dragonSeasonImageInput'))$('dragonSeasonImageInput').value=''; if($('dragonSeasonImageX'))$('dragonSeasonImageX').value=50; if($('dragonSeasonImageY'))$('dragonSeasonImageY').value=50; if($('dragonSeasonImageZoom'))$('dragonSeasonImageZoom').value=130; updateDragonSeasonImagePreview()}
+function resetDragonSeasonForm(){editingDragonSeasonId=null; $('dragonSeasonNumber').value=''; $('dragonSeasonStart').value=''; $('dragonSeasonEnd').value=''; resetDragonSeasonImage()}
+function renderDragonSeasons(){const rows=loadDragonSeasons(); const tb=$('dragonSeasonTable'); if(!tb)return; if(!rows.length){tb.innerHTML='<tr><td colspan="4" class="empty-message">등록된 시즌이 없습니다.</td></tr>';return} tb.innerHTML=rows.map(s=>`<tr><td>${s.season}시즌</td><td class="thin">${displayDragonDate(s.start)}</td><td class="thin">${displayDragonDate(s.end)}</td><td><div class="actions"><button class="detail-btn dragon-season-edit" data-id="${s.id}">수정</button><button class="detail-btn danger-btn dragon-season-delete" data-id="${s.id}">삭제</button></div></td></tr>`).join(''); document.querySelectorAll('.dragon-season-edit').forEach(btn=>btn.onclick=()=>editDragonSeason(btn.dataset.id)); document.querySelectorAll('.dragon-season-delete').forEach(btn=>btn.onclick=()=>deleteDragonSeason(btn.dataset.id))}
+function editDragonSeason(id){const s=loadDragonSeasons().find(x=>String(x.id)===String(id)); if(!s)return; editingDragonSeasonId=s.id; $('dragonSeasonNumber').value=s.season; $('dragonSeasonStart').value=s.start; $('dragonSeasonEnd').value=s.end; dragonSeasonImageData=s.imageData||''; dragonSeasonImageX=Number(s.imageX??50); dragonSeasonImageY=Number(s.imageY??50); dragonSeasonImageZoom=Number(s.imageZoom??130); if($('dragonSeasonImageInput'))$('dragonSeasonImageInput').value=''; if($('dragonSeasonImageX'))$('dragonSeasonImageX').value=dragonSeasonImageX; if($('dragonSeasonImageY'))$('dragonSeasonImageY').value=dragonSeasonImageY; if($('dragonSeasonImageZoom'))$('dragonSeasonImageZoom').value=dragonSeasonImageZoom; updateDragonSeasonImagePreview(); $('dragonSeasonForm').classList.add('open')}
+function saveDragonSeason(){const season=$('dragonSeasonNumber').value.trim(); const start=parseDragonAnyDate($('dragonSeasonStart').value); const end=parseDragonAnyDate($('dragonSeasonEnd').value); if(!season||!start||!end){alert('시즌, 시작일, 종료일을 입력해주세요.');return} let list=loadDragonSeasons(); const item={id:editingDragonSeasonId||Date.now(),season,start,end,imageData:dragonSeasonImageData,imageX:dragonSeasonImageX,imageY:dragonSeasonImageY,imageZoom:dragonSeasonImageZoom}; if(editingDragonSeasonId)list=list.map(s=>String(s.id)===String(editingDragonSeasonId)?item:s); else list.push(item); saveDragonSeasons(list); resetDragonSeasonForm(); $('dragonSeasonForm').classList.remove('open'); renderDragonSeasons(); renderDragonCanyon(false); renderDragonParticipants(false); renderDragonPlacements();renderCurrentDragonPlacement(); renderHomeEvents()}
+function deleteDragonSeason(id){if(!confirm('이 시즌을 삭제하시겠습니까?'))return; saveDragonSeasons(loadDragonSeasons().filter(s=>String(s.id)!==String(id))); renderDragonSeasons(); renderDragonCanyon(false); renderDragonParticipants(false); renderDragonPlacements();renderCurrentDragonPlacement()}
+function dragonDaySummary(mon,dayIndex){const dates=dragonWeekDates(mon); const d=dates[dayIndex]; const contents=['탑승','탐사','탐사','탐사','토벌','토벌','토벌']; const days=['월','화','수','목','금','토','일']; const active=activeMembersWithIndex().map(x=>x.m); const data=loadDragon(); if(dayIndex===0)return {day:days[dayIndex],content:contents[dayIndex],joined:[],notJoined:[],date:d}; const joined=active.filter(m=>isDragonJoined(data,d,m)); const notJoined=active.filter(m=>!isDragonJoined(data,d,m)); return {day:days[dayIndex],content:contents[dayIndex],joined,notJoined,date:d}}
+function renderDragonParticipantTable(mon,targetTbodyId='dragonParticipantTable',prefix='current'){
+  const tb=$(targetTbodyId); if(!tb)return;
+  tb.innerHTML=Array.from({length:7},(_,i)=>{const s=dragonDaySummary(mon,i); if(i===0)return `<tr><td>${s.day}</td><td>${s.content}</td><td>-</td><td>-</td><td class="thin">-</td></tr>`; return `<tr><td>${s.day}</td><td>${s.content}</td><td>${s.joined.length}명</td><td>${s.notJoined.length}명</td><td><button class="detail-btn dragon-day-detail" data-prefix="${prefix}" data-day="${i}" data-week="${dragonWeekKeyFromMonday(mon)}">보기</button></td></tr>`}).join('');
+  tb.querySelectorAll('.dragon-day-detail').forEach(btn=>btn.onclick=()=>showDragonDayDetail(btn.dataset.week,Number(btn.dataset.day),btn.dataset.prefix));
+}
+function twoColumnMemberHtml(joined,notJoined){const left=joined.length?joined.map(m=>`<div>${m.nickname}</div>`).join(''):'<div class="none">-</div>'; const right=notJoined.length?notJoined.map(m=>`<div>${m.nickname}</div>`).join(''):'<div class="none">-</div>'; return `<div class="two-col-members"><div><h4>참여자 ${joined.length}명</h4><div class="member-chip-list">${left}</div></div><div><h4>미참여자 ${notJoined.length}명</h4><div class="member-chip-list">${right}</div></div></div>`}
+function showDragonDayDetail(weekKey,dayIndex,prefix){const mon=dragonParseDate(weekKey); const s=dragonDaySummary(mon,dayIndex); const el=prefix==='record'?$('dragonParticipantRecordDetail'):$('dragonParticipantDetail'); if(!el)return; el.classList.add('open'); el.innerHTML=`<div class="dragon-record-title"><h3>${s.day}요일 ${s.content} 상세</h3><button class="text-btn" id="closeDragonDayDetailBtn">닫기</button></div>${twoColumnMemberHtml(s.joined,s.notJoined)}`; $('closeDragonDayDetailBtn').onclick=()=>{el.classList.remove('open');el.innerHTML=''}; el.scrollIntoView({behavior:'smooth',block:'start'})}
+function renderDragonParticipantRecords(currentWeekKey,reset=true){const wrap=$('dragonParticipantRecords'), detail=$('dragonParticipantRecordDetail'); if(!wrap||!detail)return; const weeks=dragonWeeksWithRecords(currentWeekKey); if(reset){detail.classList.remove('open');detail.innerHTML=''} if(!weeks.length){wrap.innerHTML='<div class="empty-message">저장된 기록이 없습니다.</div>';return} wrap.innerHTML=weeks.map(w=>`<div class="dragon-record-row"><strong>${dragonWeekLabel(w.mon)}</strong><div class="dragon-record-actions"><button class="text-btn dragon-participant-record" data-week="${w.key}">보기</button></div></div>`).join(''); wrap.querySelectorAll('.dragon-participant-record').forEach(btn=>btn.onclick=()=>showDragonParticipantRecord(btn.dataset.week))}
+function showDragonParticipantRecord(weekKey){const mon=dragonParseDate(weekKey); const detail=$('dragonParticipantRecordDetail'); if(!detail)return; detail.classList.add('open'); detail.innerHTML=`<div class="dragon-record-title"><h3>${dragonWeekLabel(mon)} 참여 기록</h3><button class="text-btn" id="closeDragonParticipantRecordBtn">닫기</button></div><div class="table-wrap"><table class="dragon-participant-table"><thead><tr><th>요일</th><th>콘텐츠</th><th>참여</th><th>미참여</th><th>상세</th></tr></thead><tbody id="dragonParticipantRecordTable"></tbody></table></div>`; renderDragonParticipantTable(mon,'dragonParticipantRecordTable','record'); $('closeDragonParticipantRecordBtn').onclick=()=>{detail.classList.remove('open');detail.innerHTML=''}; detail.scrollIntoView({behavior:'smooth',block:'start'})}
+function renderDragonParticipants(reset=true){const label=$('dragonParticipantWeekLabel'); if(!label)return; const mon=currentDragonMonday(); const key=dragonWeekKeyFromMonday(mon); syncDragonWeekLabels(); renderDragonParticipantTable(mon,'dragonParticipantTable','current'); if(reset){$('dragonParticipantDetail').classList.remove('open');$('dragonParticipantDetail').innerHTML=''} renderDragonParticipantRecords(key,reset)}
+
+const dragonPlacementStorageKey='yuilDragonPlacementsV1';
+const dragonTeamNames=['용암 산맥','황무지 고원','바람 절벽','얼음 골짜기'];
+let currentPlacementPreview=null;
+function rankScore(rank){const idx=rankList.indexOf(rank); return idx>=0?idx+1:1}
+function loadDragonPlacements(){try{return JSON.parse(localStorage.getItem(dragonPlacementStorageKey)||'[]').filter(p=>p&&p.id&&p.season&&p.week&&p.teams).sort((a,b)=>String(b.id).localeCompare(String(a.id)))}catch(e){return []}}
+function saveDragonPlacements(list){localStorage.setItem(dragonPlacementStorageKey,JSON.stringify(list))}
+function getSeasonWeeks(season){if(!season)return []; const start=dragonParseDate(season.start), end=dragonParseDate(season.end); const startMon=mondayOfWeek(start); const weeks=[]; let n=1; for(let d=new Date(startMon); d<=end; d.setDate(d.getDate()+7),n++){const mon=new Date(d); weeks.push({week:n,key:dragonWeekKeyFromMonday(mon),label:`${n}주차`})} return weeks}
+function fillPlacementSeasons(){const select=$('dragonPlacementSeason'); if(!select)return; const seasons=loadDragonSeasons(); select.innerHTML=seasons.length?seasons.map(s=>`<option value="${s.id}">${s.season}시즌</option>`).join(''):'<option value="">등록된 시즌 없음</option>'; fillPlacementWeeks()}
+function fillPlacementWeeks(){const sId=$('dragonPlacementSeason')?.value; const season=loadDragonSeasons().find(s=>String(s.id)===String(sId)); const weekSelect=$('dragonPlacementWeek'); if(!weekSelect)return; const weeks=getSeasonWeeks(season); weekSelect.innerHTML=weeks.length?weeks.map(w=>`<option value="${w.week}">${w.label}</option>`).join(''):'<option value="">주차 없음</option>'}
+function resetDragonPlacementForm(){currentPlacementPreview=null; if($('dragonPlacementSeason'))fillPlacementSeasons(); if($('dragonPlacementPreview')){$('dragonPlacementPreview').classList.remove('open');$('dragonPlacementPreview').innerHTML=''}}
+function placementSeasonLabel(p){return `${p.season}시즌 ${p.week}주차`}
+function activePlacementMembers(){return activeMembersWithIndex().map(({m})=>({id:m.id,nickname:m.nickname,rank:m.rank,score:rankScore(m.rank)}))}
+function autoBalanceTeams(){
+  const members=activePlacementMembers().sort((a,b)=>b.score-a.score||a.nickname.localeCompare(b.nickname,'ko'));
+  const teams=dragonTeamNames.map(name=>({name,members:[],score:0}));
+  members.forEach(member=>{
+    teams.sort((a,b)=>(a.score-b.score)||(a.members.length-b.members.length));
+    teams[0].members.push(member); teams[0].score+=member.score;
+  });
+  const order=Object.fromEntries(dragonTeamNames.map((n,i)=>[n,i]));
+  return teams.sort((a,b)=>order[a.name]-order[b.name]);
+}
+function placementGridHtml(teams){return `<div class="placement-grid">${teams.map(t=>`<div class="placement-team"><h4>${t.name}</h4><div class="placement-team-meta">${t.members.length}명 / ${t.score}점</div>${t.members.length?t.members.map((m,i)=>`<div class="placement-member ${i===0?'leader':''}"><strong>${m.nickname}</strong><span>${gradeFromRank(m.rank)} · ${m.score}점</span></div>`).join(''):'<div class="placement-member"><span>-</span></div>'}</div>`).join('')}</div>`}
+function buildPlacementItem(){const seasons=loadDragonSeasons(); const season=seasons.find(s=>String(s.id)===String($('dragonPlacementSeason').value)); const week=Number($('dragonPlacementWeek').value); if(!season||!week)return null; const teams=autoBalanceTeams(); return {id:Date.now(),season:season.season,seasonId:season.id,week,totalCount:activePlacementMembers().length,teams}}
+function autoDragonPlacement(){const item=buildPlacementItem(); if(!item){alert('시즌과 주차를 선택해주세요.');return} currentPlacementPreview=item; const box=$('dragonPlacementPreview'); box.classList.add('open'); box.innerHTML=`<div class="dragon-record-title"><h3>${placementSeasonLabel(item)} 배치 미리보기</h3></div><div class="placement-total">총 인원 ${item.totalCount}명 / 배치 인원 ${item.teams.reduce((s,t)=>s+t.members.length,0)}명</div>${placementGridHtml(item.teams)}<button class="secondary-btn" id="saveDragonPlacementBtn">배치 저장</button>`; $('saveDragonPlacementBtn').onclick=saveDragonPlacement; box.scrollIntoView({behavior:'smooth',block:'start'})}
+function saveDragonPlacement(){if(!currentPlacementPreview)return; const list=loadDragonPlacements().filter(p=>!(String(p.seasonId)===String(currentPlacementPreview.seasonId)&&Number(p.week)===Number(currentPlacementPreview.week))); saveDragonPlacements([currentPlacementPreview,...list]); currentPlacementPreview=null; $('dragonPlacementForm').classList.remove('open'); $('dragonPlacementPreview').classList.remove('open'); $('dragonPlacementPreview').innerHTML=''; renderDragonPlacements();renderCurrentDragonPlacement()}
+function renderDragonPlacements(){fillPlacementSeasons(); const tb=$('dragonPlacementTable'); if(!tb)return; const rows=loadDragonPlacements(); if(!rows.length){tb.innerHTML='<tr><td colspan="3" class="empty-message">저장된 배치가 없습니다.</td></tr>';return} tb.innerHTML=rows.map(p=>`<tr><td>${placementSeasonLabel(p)}</td><td>${p.teams.reduce((s,t)=>s+t.members.length,0)}명/${p.totalCount||p.teams.reduce((s,t)=>s+t.members.length,0)}명</td><td><div class="actions"><button class="detail-btn placement-view" data-id="${p.id}">보기</button><button class="detail-btn placement-edit" data-id="${p.id}">수정</button><button class="detail-btn danger-btn placement-delete" data-id="${p.id}">삭제</button></div></td></tr>`).join(''); tb.querySelectorAll('.placement-view').forEach(btn=>btn.onclick=()=>showPlacementView(btn.dataset.id)); tb.querySelectorAll('.placement-edit').forEach(btn=>btn.onclick=()=>showPlacementEdit(btn.dataset.id)); tb.querySelectorAll('.placement-delete').forEach(btn=>btn.onclick=()=>deleteDragonPlacement(btn.dataset.id))}
+function showPlacementView(id){const p=loadDragonPlacements().find(x=>String(x.id)===String(id)); if(!p)return; const el=$('dragonPlacementDetail'); el.classList.add('open'); el.innerHTML=`<div class="dragon-record-title"><h3>${placementSeasonLabel(p)} 배치 보기</h3><button class="text-btn" id="closePlacementDetailBtn">닫기</button></div><div class="placement-total">총 인원 ${p.totalCount||0}명 / 배치 인원 ${p.teams.reduce((s,t)=>s+t.members.length,0)}명</div>${placementGridHtml(p.teams)}`; $('closePlacementDetailBtn').onclick=()=>{el.classList.remove('open');el.innerHTML=''}; el.scrollIntoView({behavior:'smooth',block:'start'})}
+function showPlacementEdit(id){const p=loadDragonPlacements().find(x=>String(x.id)===String(id)); if(!p)return; const el=$('dragonPlacementDetail'); el.classList.add('open'); el.innerHTML=`<div class="dragon-record-title"><h3>${placementSeasonLabel(p)} 배치 수정</h3><button class="text-btn" id="closePlacementDetailBtn">닫기</button></div><p class="small-note">현재 저장된 배치</p>${placementGridHtml(p.teams)}<button class="secondary-btn" id="replacePlacementBtn">현재 인사 기록으로 재배치</button><div class="placement-preview" id="replacePlacementPreview"></div>`; $('closePlacementDetailBtn').onclick=()=>{el.classList.remove('open');el.innerHTML=''}; $('replacePlacementBtn').onclick=()=>{const updated={...p,id:p.id,totalCount:activePlacementMembers().length,teams:autoBalanceTeams()}; const preview=$('replacePlacementPreview'); preview.classList.add('open'); preview.innerHTML=`<p class="small-note">재배치 미리보기</p>${placementGridHtml(updated.teams)}<button class="secondary-btn" id="saveReplacePlacementBtn">수정 저장</button>`; $('saveReplacePlacementBtn').onclick=()=>{saveDragonPlacements(loadDragonPlacements().map(x=>String(x.id)===String(p.id)?updated:x)); el.classList.remove('open');el.innerHTML=''; renderDragonPlacements();renderCurrentDragonPlacement()}}; el.scrollIntoView({behavior:'smooth',block:'start'})}
+function deleteDragonPlacement(id){if(!confirm('이 배치를 삭제하시겠습니까?'))return; saveDragonPlacements(loadDragonPlacements().filter(p=>String(p.id)!==String(id))); $('dragonPlacementDetail').classList.remove('open'); $('dragonPlacementDetail').innerHTML=''; renderDragonPlacements();renderCurrentDragonPlacement()}
+
+const eventStorageKey='yuilGuildEventsV1';
+const eventTypeList=['이벤트','시즌 스킬','테마 던전','신년 이벤트','크리스마스 이벤트','할로윈 이벤트','주년 이벤트'];
+let editingEventId=null,eventImageData='',eventImageX=50,eventImageY=50,eventImageZoom=130;
+function fillEventTypes(el){if(el)el.innerHTML=eventTypeList.map(t=>`<option value="${t}">${t}</option>`).join('')}
+function loadEvents(){try{return JSON.parse(localStorage.getItem(eventStorageKey)||'[]').filter(e=>e&&e.type&&e.name&&e.start&&e.end).sort((a,b)=>dragonParseDate(b.start)-dragonParseDate(a.start))}catch(e){return []}}
+function saveEvents(list){localStorage.setItem(eventStorageKey,JSON.stringify(list))}
+function eventImageStyle(e){return e&&e.imageData?`background-image:url('${e.imageData}');background-size:${e.imageZoom||130}%;background-position:${e.imageX??50}% ${e.imageY??50}%;`:''}
+function updateEventImagePreview(){const prev=$('eventImagePreview'); if(!prev)return; prev.classList.toggle('has-image',!!eventImageData); prev.style.backgroundImage=eventImageData?`url('${eventImageData}')`:''; prev.style.backgroundSize=`${eventImageZoom}%`; prev.style.backgroundPosition=`${eventImageX}% ${eventImageY}%`; prev.innerHTML=`<span class="preview-text">${eventImageData?'카드에 보일 영역을 조절해주세요.':'이미지를 올리면 홈 이벤트 카드 배경으로 표시됩니다.'}</span>`}
+function resetEventImage(){eventImageData='';eventImageX=50;eventImageY=50;eventImageZoom=130; if($('eventImageInput'))$('eventImageInput').value=''; if($('eventImageX'))$('eventImageX').value=50; if($('eventImageY'))$('eventImageY').value=50; if($('eventImageZoom'))$('eventImageZoom').value=130; updateEventImagePreview()}
+function resetEventForm(){editingEventId=null; if($('eventType'))$('eventType').value='이벤트'; if($('eventName'))$('eventName').value=''; if($('eventStart'))$('eventStart').value=''; if($('eventStartTime'))$('eventStartTime').value=''; if($('eventEnd'))$('eventEnd').value=''; if($('eventEndTime'))$('eventEndTime').value=''; resetEventImage(); if($('saveEventBtn'))$('saveEventBtn').textContent='이벤트 저장'}
+function eventTimeText(t){return t?` ${t}`:''}
+function eventPeriod(e){return `${displayDragonDate(e.start)}${eventTimeText(e.startTime)}~${displayDragonDate(e.end)}${eventTimeText(e.endTime)}`}
+function eventPeriodFull(e){return `${displayDragonDate(e.start)}${eventTimeText(e.startTime)}~${displayDragonDate(e.end)}${eventTimeText(e.endTime)}`}
+function eventDateTime(key,time,endOfDay=false){const d=dragonParseDate(key); const [hh,mm]=(time||(endOfDay?'23:59':'00:00')).split(':').map(Number); d.setHours(Number.isFinite(hh)?hh:0,Number.isFinite(mm)?mm:0,0,0); return d}
+function activeEvents(){const now=new Date(); return loadEvents().filter(e=>now>=eventDateTime(e.start,e.startTime,false)&&now<=eventDateTime(e.end,e.endTime,true)).sort((a,b)=>eventDateTime(b.start,b.startTime,false)-eventDateTime(a.start,a.startTime,false))}
+
+function currentDragonHomeCard(){
+  const info=currentDragonSeasonWeekInfo();
+  if(!info || !info.season)return null;
+  const mon=currentDragonMonday();
+  const sun=new Date(mon); sun.setDate(mon.getDate()+6);
+  return {
+    name:`용의 협곡 ${info.season.season}시즌`,
+    type:`${info.week}주차`,
+    period:`${displayDragonDate(dragonDateKey(mon))} ~ ${displayDragonDate(dragonDateKey(sun))}`,
+    imageData:info.season.imageData||'',
+    imageX:info.season.imageX??50,
+    imageY:info.season.imageY??50,
+    imageZoom:info.season.imageZoom||130
+  };
+}
+
+function renderHomeEvents(){
+  const box=$('homeEventList');
+  if(!box)return;
+  let dragon=null;
+  const cards=[];
+  try{dragon=currentDragonHomeCard();}catch(e){console.warn('dragon card render error',e)}
+  if(dragon){
+    cards.push(`<article class="home-event-card dragon-home-card ${dragon.imageData?'has-image':''}" style="${dragonSeasonImageStyle(dragon)}" id="homeDragonCard">
+      <h3 class="home-event-name">${dragon.name}</h3>
+      <p class="home-event-type">${dragon.type}</p>
+      <p class="home-event-period">${dragon.period}</p>
+      <span class="home-event-arrow" aria-hidden="true">›</span>
+    </article>`);
+  }
+  let currentEvents=[];
+  try{currentEvents=activeEvents();}catch(e){console.warn('event card render error',e)}
+  cards.push(...currentEvents.map(e=>`<article class="home-event-card event-home-card ${e.imageData?'has-image':''}" style="${eventImageStyle(e)}">
+      <h3 class="home-event-name">${e.name}</h3>
+      <p class="home-event-type">${e.type}</p>
+      <p class="home-event-period">${eventPeriodFull(e)}</p>
+      <span class="home-event-arrow" aria-hidden="true">›</span>
+    </article>`));
+  box.innerHTML=cards.length?cards.join(''):'<div class="home-empty">진행 중인 이벤트가 없습니다.</div>';
+  const dragonCard=$('homeDragonCard');
+  if(dragonCard)dragonCard.onclick=()=>showSection('dragonCanyon');
+  box.querySelectorAll('.event-home-card').forEach(card=>card.onclick=()=>showSection('eventSection'));
+}
+
+function renderEvents(){
+  const events=loadEvents();
+  const view=$('eventViewTable'), manage=$('eventManageTable');
+  if(view){
+    view.innerHTML=events.length?events.map(e=>`<tr><td>${e.type}</td><td>${e.name}</td><td class="thin period-full">${eventPeriodFull(e)}</td></tr>`).join(''):'<tr><td colspan="3" class="empty-message">등록된 이벤트가 없습니다.</td></tr>';
+  }
+  if(manage){
+    manage.innerHTML=events.length?events.map(e=>`<tr><td>${e.type}</td><td>${e.name}</td><td class="thin">${eventPeriod(e)}</td><td><div class="actions"><button class="detail-btn event-edit" data-id="${e.id}">수정</button><button class="detail-btn danger-btn event-delete" data-id="${e.id}">삭제</button></div></td></tr>`).join(''):'<tr><td colspan="4" class="empty-message">등록된 이벤트가 없습니다.</td></tr>';
+    manage.querySelectorAll('.event-edit').forEach(btn=>btn.onclick=()=>editEvent(btn.dataset.id));
+    manage.querySelectorAll('.event-delete').forEach(btn=>btn.onclick=()=>deleteEvent(btn.dataset.id));
+  }
+  renderHomeEvents();
+}
+function editEvent(id){const e=loadEvents().find(x=>String(x.id)===String(id)); if(!e)return; editingEventId=e.id; $('eventType').value=e.type; $('eventName').value=e.name; $('eventStart').value=e.start; $('eventStartTime').value=e.startTime||''; $('eventEnd').value=e.end; $('eventEndTime').value=e.endTime||''; eventImageData=e.imageData||''; eventImageX=Number(e.imageX??50); eventImageY=Number(e.imageY??50); eventImageZoom=Number(e.imageZoom??130); if($('eventImageInput'))$('eventImageInput').value=''; if($('eventImageX'))$('eventImageX').value=eventImageX; if($('eventImageY'))$('eventImageY').value=eventImageY; if($('eventImageZoom'))$('eventImageZoom').value=eventImageZoom; updateEventImagePreview(); $('saveEventBtn').textContent='이벤트 저장'; $('eventForm').classList.add('open'); setTimeout(()=>$('eventForm').scrollIntoView({behavior:'smooth',block:'start'}),40)}
+function saveEvent(){const type=$('eventType').value; const name=$('eventName').value.trim(); const start=parseDragonAnyDate($('eventStart').value); const startTime=$('eventStartTime').value; const end=parseDragonAnyDate($('eventEnd').value); const endTime=$('eventEndTime').value; if(!type||!name||!start||!startTime||!end||!endTime){alert('이벤트 종류, 이름, 시작일, 시작 시간, 종료일, 종료 시간을 모두 입력해주세요.');return} let list=loadEvents(); const item={id:editingEventId||Date.now(),type,name,start,startTime,end,endTime,imageData:eventImageData,imageX:eventImageX,imageY:eventImageY,imageZoom:eventImageZoom}; if(editingEventId)list=list.map(e=>String(e.id)===String(editingEventId)?item:e); else list.push(item); saveEvents(list); resetEventForm(); $('eventForm').classList.remove('open'); renderEvents();}
+function deleteEvent(id){if(!confirm('이 이벤트를 삭제하시겠습니까?'))return; saveEvents(loadEvents().filter(e=>String(e.id)!==String(id))); renderEvents()}
+
+function showMain(m){$('joinScreen').classList.remove('active');$('mainScreen').classList.add('active');showHome(false,false);pushViewState('home',true);renderCurrentUser(m)}
+let currentView='home';
+function openDrawer(){
+  const wasOpen=$('drawer').classList.contains('open');
+  $('drawer').classList.add('open');$('drawerBackdrop').classList.add('open');
+  if(!wasOpen && $('mainScreen').classList.contains('active')){try{history.pushState({view:currentView,drawer:true},'',location.href)}catch(e){}}
+}
+function closeDrawer(){$('drawer').classList.remove('open');$('drawerBackdrop').classList.remove('open')}
+function pushViewState(view,replace=false){
+  if(!$('mainScreen').classList.contains('active'))return;
+  try{const state={view,drawer:false}; replace?history.replaceState(state,'',location.href):history.pushState(state,'',location.href)}catch(e){}
+}
+function goBack(){
+  if($('drawer').classList.contains('open')){closeDrawer();return}
+  if(currentView==='home'){showHome(true,false);return}
+  if(history.length>1){history.back()}else{showHome(true)}
+}
+function applyHistoryView(view){
+  if(!view||view==='home')showHome(true,false);
+  else showSection(view,false);
+}
+window.addEventListener('popstate',e=>{
+  if($('drawer')&&$('drawer').classList.contains('open'))closeDrawer();
+  const state=e.state||{view:'home'};
+  if(state.drawer){$('drawer').classList.add('open');$('drawerBackdrop').classList.add('open');currentView=state.view||currentView;return}
+  applyHistoryView(state.view||'home');
+});
+function showSection(targetId,push=true){
+  const fromDrawer=$('drawer')&&$('drawer').classList.contains('open');
+  closeAllOpenPanels(); currentView=targetId; $('welcomeHero').style.display='none'; $('homeEventBlock').style.display='none'; $('homeQuickBlock').style.display='none'; $('homeManageBlock').style.display='none';['guildGreeting','manageSection','dragonCanyon','dragonManage','eventSection','eventManage'].forEach(id=>$(id).style.display=id===targetId?'block':'none');document.querySelectorAll('.menu-item').forEach(item=>item.classList.toggle('active',item.dataset.target===targetId)); if(targetId==='manageSection'){setManageTab('active')}else if(targetId==='dragonCanyon'){setDragonCanyonTab('join');renderTable();renderManageTable();renderWithdrawTable()}else if(targetId==='dragonManage'){setDragonManageTab('season');renderDragonCanyon(false);renderTable();renderManageTable();renderWithdrawTable();renderEvents()}else if(targetId==='eventSection'||targetId==='eventManage'){renderEvents();renderTable();renderManageTable();renderWithdrawTable()}else{renderTable();renderManageTable();renderWithdrawTable();renderEvents()} closeDrawer(); if(push)pushViewState(targetId,fromDrawer); window.scrollTo({top:0,behavior:'smooth'})}
+function showHome(doRender=true,push=true){
+  const fromDrawer=$('drawer')&&$('drawer').classList.contains('open');
+  closeAllOpenPanels(); currentView='home'; $('welcomeHero').style.display='flex'; $('homeEventBlock').style.display='block'; $('homeQuickBlock').style.display='block'; $('homeManageBlock').style.display='block';['guildGreeting','manageSection','dragonCanyon','dragonManage','eventSection','eventManage'].forEach(id=>$(id).style.display='none');document.querySelectorAll('.menu-item').forEach(item=>item.classList.remove('active'));renderHomeEvents();if(doRender)refreshAll(false);closeDrawer(); if(push)pushViewState('home',fromDrawer); window.scrollTo({top:0,behavior:'smooth'})}
+fillRanks($('rankSelect'));fillRanks($('editRank'));fillRanks($('newHistoryRank'));fillGrades($('editGrade'));fillPositions($('editPosition'));fillEventTypes($('eventType'));
+$('editGrade').onchange=()=>{$('editRank').value=rankFromGrade($('editGrade').value)}; $('editRank').onchange=()=>{$('editGrade').value=gradeFromRank($('editRank').value)}; $('newHistoryRank').onchange=updateNewHistoryGrade;
+$('promoteBtn').onclick=openPromotionPanel; $('closePromotionBtn').onclick=()=>$('promotionPanel').classList.remove('open'); $('savePromotionBtn').onclick=savePromotion;
+$('joinBtn').onclick=()=>{const nickname=$('nicknameInput').value.trim();const rank=$('rankSelect').value;const grade=gradeFromRank(rank);if(!nickname){alert('닉네임을 입력해주세요.');$('nicknameInput').focus();return} const members=loadMembers();const now=todayText();const member={id:Date.now(),nickname,position:'사원',grade,rank,joinDate:now,history:[{date:now,grade,rank}],memberHistory:[{type:'가입',date:now}]};members.push(member);saveMembers(members);showMain(member)};
+document.querySelectorAll('.page-back').forEach(btn=>btn.onclick=goBack);$('menuBtn').onclick=openDrawer;$('closeDrawerBtn').onclick=closeDrawer;$('drawerBackdrop').onclick=closeDrawer;$('homeBtn').onclick=()=>showHome(true);$('quickGuildBtn').onclick=()=>showSection('guildGreeting');$('quickManageBtn').onclick=()=>showSection('manageSection');$('quickDragonManageBtn').onclick=()=>showSection('dragonManage');$('quickEventManageBtn').onclick=()=>showSection('eventManage');document.querySelectorAll('.menu-item').forEach(item=>item.onclick=()=>showSection(item.dataset.target));$('activeTabBtn').onclick=()=>setManageTab('active');$('withdrawTabBtn').onclick=()=>setManageTab('withdraw');$('dragonCanyonJoinTabBtn').onclick=()=>setDragonCanyonTab('join');$('dragonCanyonPlacementTabBtn').onclick=()=>setDragonCanyonTab('placement');$('dragonSeasonTabBtn').onclick=()=>setDragonManageTab('season');$('dragonParticipantTabBtn').onclick=()=>setDragonManageTab('participant');$('dragonPlacementTabBtn').onclick=()=>setDragonManageTab('placement');$('addDragonSeasonBtn').onclick=()=>{$('dragonSeasonForm').classList.toggle('open'); if(!$('dragonSeasonForm').classList.contains('open'))resetDragonSeasonForm()};$('saveDragonSeasonBtn').onclick=saveDragonSeason;$('addDragonPlacementBtn').onclick=()=>{$('dragonPlacementForm').classList.toggle('open');if($('dragonPlacementForm').classList.contains('open'))resetDragonPlacementForm();else resetDragonPlacementForm()};$('dragonPlacementSeason').onchange=fillPlacementWeeks;$('autoDragonPlacementBtn').onclick=autoDragonPlacement;$('closeEditBtn').onclick=()=>{$('editPanel').style.display='none';editingMemberIndex=null};$('closeWithdrawViewBtn').onclick=()=>{$('withdrawViewPanel').style.display='none'};$('saveManageBtn').onclick=saveBasicInfo;$('addHistoryBtn').onclick=()=>{$('addHistoryForm').classList.toggle('open')};$('saveNewHistoryBtn').onclick=addHistory;$('addMemberHistoryBtn').onclick=()=>{$('addMemberHistoryForm').classList.toggle('open')};$('saveNewMemberHistoryBtn').onclick=addMemberHistory;$('addEventBtn').onclick=()=>{$('eventForm').classList.toggle('open');if(!$('eventForm').classList.contains('open'))resetEventForm()};$('saveEventBtn').onclick=saveEvent;
+
+['dragonSeasonImageX','dragonSeasonImageY','dragonSeasonImageZoom'].forEach(id=>{const el=$(id); if(el)el.oninput=()=>{dragonSeasonImageX=Number($('dragonSeasonImageX').value); dragonSeasonImageY=Number($('dragonSeasonImageY').value); dragonSeasonImageZoom=Number($('dragonSeasonImageZoom').value); updateDragonSeasonImagePreview()}});
+if($('removeDragonSeasonImageBtn'))$('removeDragonSeasonImageBtn').onclick=resetDragonSeasonImage;
+if($('dragonSeasonImageInput'))$('dragonSeasonImageInput').onchange=e=>{const file=e.target.files&&e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=()=>{const img=new Image(); img.onload=()=>{const max=1200; let w=img.width,h=img.height; const scale=Math.min(1,max/Math.max(w,h)); w=Math.round(w*scale); h=Math.round(h*scale); const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h; const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,w,h); dragonSeasonImageData=canvas.toDataURL('image/jpeg',.86); updateDragonSeasonImagePreview()}; img.src=reader.result}; reader.readAsDataURL(file)};
+['eventImageX','eventImageY','eventImageZoom'].forEach(id=>{const el=$(id); if(el)el.oninput=()=>{eventImageX=Number($('eventImageX').value); eventImageY=Number($('eventImageY').value); eventImageZoom=Number($('eventImageZoom').value); updateEventImagePreview()}});
+if($('removeEventImageBtn'))$('removeEventImageBtn').onclick=()=>resetEventImage();
+if($('eventImageInput'))$('eventImageInput').onchange=e=>{const file=e.target.files&&e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=()=>{const img=new Image(); img.onload=()=>{const max=1200; let w=img.width,h=img.height; const scale=Math.min(1,max/Math.max(w,h)); w=Math.round(w*scale); h=Math.round(h*scale); const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h; const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,w,h); eventImageData=canvas.toDataURL('image/jpeg',.86); updateEventImagePreview()}; img.src=reader.result}; reader.readAsDataURL(file)};
+updateEventImagePreview();
+const existing=currentMember(); if(existing){showMain(existing)}
+</script>
+</body>
+</html>
