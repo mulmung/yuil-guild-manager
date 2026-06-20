@@ -30,11 +30,11 @@
     .hero{margin-top:2px;padding:18px;border-radius:24px;color:#fff;background:linear-gradient(135deg,rgba(18,104,255,.96),rgba(7,71,184,.96)),radial-gradient(circle at top right,rgba(255,255,255,.34),transparent 34%);box-shadow:var(--shadow);min-height:118px;display:flex;flex-direction:column;justify-content:flex-end}.hero-main{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}.hero-text{min-width:0;flex:1}.welcome-name{margin:0 0 7px;font-size:32px;font-weight:950;letter-spacing:-1.4px;line-height:1.08}.welcome-name .name-sub{font-size:15px;font-weight:300;opacity:.86;letter-spacing:-.4px}.welcome-small{margin:0;font-size:13px;font-weight:300;opacity:.86;letter-spacing:-.2px}.promote-btn{flex:0 0 auto;border:1px solid rgba(255,255,255,.36);background:rgba(255,255,255,.16);color:#fff;border-radius:999px;padding:9px 11px;font-size:11px;font-weight:950;backdrop-filter:blur(8px)}.promote-btn:active{transform:scale(.97);background:rgba(255,255,255,.25)}.promotion-panel{margin-top:10px;border-radius:18px;background:rgba(255,255,255,.78);padding:12px 0 14px}.promotion-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 4px}.promotion-chip{border:1px solid rgba(18,104,255,.14);border-radius:14px;background:#fff;padding:10px}.promotion-chip span{display:block;color:var(--muted);font-size:11px;font-weight:800}.promotion-chip strong{display:block;margin-top:4px;color:var(--deep-blue);font-size:14px;font-weight:950}.promotion-grade-line{margin:8px 0 0;color:var(--muted);font-size:13px;font-weight:700}.promotion-grade-line strong{color:var(--deep-blue);font-weight:950}
     .home-quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.home-quick.single{grid-template-columns:1fr}.home-quick.three{grid-template-columns:repeat(3,1fr);gap:8px}.home-quick.three .home-quick-btn{font-size:13px;padding:0 6px}.home-quick-btn{height:54px;border:1px solid rgba(18,104,255,.18);border-radius:18px;background:rgba(255,255,255,.76);color:var(--deep-blue);font-size:15px;font-weight:950;box-shadow:0 10px 24px rgba(7,71,184,.08)}.home-quick-btn:active{transform:scale(.985);background:var(--light-blue)}
     .home-block{margin-top:18px}.home-block-head{display:flex;align-items:end;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px}.home-block-head h2{margin:0;font-size:18px;font-weight:950;letter-spacing:-.6px}.home-event-list{display:grid;gap:10px}.home-event-card{position:relative;overflow:hidden;min-height:124px;border:1px solid rgba(18,104,255,.16);border-radius:18px;background:rgba(255,255,255,.78);box-shadow:0 10px 24px rgba(7,71,184,.08);padding:0 15px;background-repeat:no-repeat;color:var(--text)}.home-event-card.dragon-home-card{cursor:pointer}.home-event-card.has-image{background-color:#0d1b33;color:#fff}.home-event-card.has-image:before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.42);z-index:0}.home-event-card>*{position:relative;z-index:1}.home-event-card.has-image .home-event-name{color:#fff}.home-event-card.has-image .home-event-type{color:rgba(255,255,255,.76)}.home-event-card.has-image .home-event-period{color:#fff}.home-event-name{position:absolute;left:15px;right:15px;bottom:64px;margin:0;font-size:18px;font-weight:950;letter-spacing:-.5px;color:var(--text)}.home-event-type{position:absolute;left:15px;right:15px;bottom:44px;margin:0;font-size:12px;font-weight:500;color:var(--muted)}.home-event-period{position:absolute;left:15px;right:15px;bottom:16px;margin:0;font-size:13px;font-weight:800;color:var(--deep-blue);line-height:1.35;white-space:nowrap;letter-spacing:-.35px}.home-empty{padding:16px 4px;color:var(--muted);font-size:13px;text-align:center;border-bottom:1px solid var(--line)}
-    .dragon-alert{display:none;margin-top:18px;border:1px solid rgba(18,104,255,.22);border-radius:18px;background:linear-gradient(135deg,rgba(18,104,255,.10),rgba(255,255,255,.88));box-shadow:0 10px 24px rgba(7,71,184,.08);padding:16px 16px 15px}
+    .dragon-alert{display:none;margin-top:18px;border:1px solid rgba(220,38,38,.28);border-radius:18px;background:linear-gradient(135deg,#ef4444,#b91c1c);box-shadow:0 14px 30px rgba(185,28,28,.22);padding:16px 16px 15px;color:#fff}
     .dragon-alert.open{display:block}
-    .dragon-alert h2{margin:0 0 8px;font-size:17px;font-weight:950;letter-spacing:-.5px;color:var(--text)}
-    .dragon-alert p{margin:0;color:var(--muted);font-size:13px;font-weight:750;line-height:1.55;letter-spacing:-.35px}
-    .dragon-alert .countdown{margin-top:10px;color:var(--deep-blue);font-size:15px;font-weight:950;letter-spacing:-.3px}
+    .dragon-alert h2{margin:0 0 8px;font-size:17px;font-weight:950;letter-spacing:-.5px;color:#fff}
+    .dragon-alert p{margin:0;color:rgba(255,255,255,.86);font-size:13px;font-weight:750;line-height:1.55;letter-spacing:-.35px}
+    .dragon-alert .countdown{margin-top:10px;color:#fff;font-size:15px;font-weight:950;letter-spacing:-.3px}
 
 
     .home-event-card{cursor:pointer}
@@ -600,10 +600,31 @@ function syncDragonWeekLabels(){
   ['dragonWeekLabel','dragonParticipantWeekLabel','dragonCurrentPlacementLabel'].forEach(id=>{const el=$(id); if(el)el.textContent=label});
 }
 function currentMemberId(){const m=currentMember();return currentUser?currentUser.uid:(m&&m.id?String(m.id):'guest')}
+function memberDragonKeys(member){
+  const keys=[];
+  if(member){
+    if(member.id)keys.push(String(member.id));
+    if(member.uid)keys.push(String(member.uid));
+  }
+  if(currentUser&&member&&(member.uid===currentUser.uid||String(member.id)===String(currentUser.uid)))keys.push(String(currentUser.uid));
+  return [...new Set(keys.filter(Boolean))];
+}
 function dragonEntryForDate(data,key){const raw=data[key]; if(raw&&typeof raw==='object'&&!Array.isArray(raw))return raw; if(raw===true)return {[currentMemberId()]:true}; return {}}
-function isDragonJoined(data,date,member){if(!member||!member.id)return false; const entry=dragonEntryForDate(data,dragonDateKey(date)); return entry[String(member.id)]===true}
+function isDragonJoined(data,date,member){if(!member)return false; const entry=dragonEntryForDate(data,dragonDateKey(date)); return memberDragonKeys(member).some(k=>entry[k]===true)}
 function dragonStatusForDate(data,d,i){if(i===0)return null; const m=currentMember(); if(!m)return false; return isDragonJoined(data,d,m)}
-function setDragonCurrentMemberStatus(dateKey,value){const data=loadDragon(); const entry=dragonEntryForDate(data,dateKey); const id=currentMemberId(); if(value)entry[id]=true; else delete entry[id]; data[dateKey]=entry; saveDragon(data); renderHomeDragonNotice()}
+function setDragonCurrentMemberStatus(dateKey,value){
+  const data=loadDragon();
+  const entry=dragonEntryForDate(data,dateKey);
+  const m=currentMember();
+  const keys=memberDragonKeys(m);
+  if(!keys.length)keys.push(currentMemberId());
+  if(value)keys.forEach(k=>entry[k]=true);
+  else keys.forEach(k=>delete entry[k]);
+  data[dateKey]=entry;
+  saveDragon(data);
+  renderHomeDragonNotice();
+  if(currentView==='home')renderHomeEvents();
+}
 function dragonWeekTable(mon,mode='current'){
   const today=new Date(); today.setHours(0,0,0,0);
   const days=['월','화','수','목','금','토','일'];
@@ -617,7 +638,16 @@ function dragonWeekTable(mon,mode='current'){
   return dayDateRow+contentRow+statusRow;
 }
 function bindDragonStatusButtons(root, after){
-  root.querySelectorAll('button.dragon-status').forEach(btn=>{btn.onclick=()=>{const data=loadDragon();const key=btn.dataset.date;const entry=dragonEntryForDate(data,key);const id=currentMemberId();setDragonCurrentMemberStatus(key,entry[id]!==true);after&&after()}});
+  root.querySelectorAll('button.dragon-status').forEach(btn=>{btn.onclick=()=>{
+    const data=loadDragon();
+    const key=btn.dataset.date;
+    const entry=dragonEntryForDate(data,key);
+    const member=currentMember();
+    const joined=member?memberDragonKeys(member).some(k=>entry[k]===true):entry[currentMemberId()]===true;
+    setDragonCurrentMemberStatus(key,!joined);
+    after&&after();
+    renderHomeDragonNotice();
+  }});
 }
 function dragonWeeksWithRecords(currentWeekKey){
   const data=loadDragon();
