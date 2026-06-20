@@ -30,11 +30,12 @@
     .hero{margin-top:2px;padding:18px;border-radius:24px;color:#fff;background:linear-gradient(135deg,rgba(18,104,255,.96),rgba(7,71,184,.96)),radial-gradient(circle at top right,rgba(255,255,255,.34),transparent 34%);box-shadow:var(--shadow);min-height:118px;display:flex;flex-direction:column;justify-content:flex-end}.hero-main{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}.hero-text{min-width:0;flex:1}.welcome-name{margin:0 0 7px;font-size:32px;font-weight:950;letter-spacing:-1.4px;line-height:1.08}.welcome-name .name-sub{font-size:15px;font-weight:300;opacity:.86;letter-spacing:-.4px}.welcome-small{margin:0;font-size:13px;font-weight:300;opacity:.86;letter-spacing:-.2px}.promote-btn{flex:0 0 auto;border:1px solid rgba(255,255,255,.36);background:rgba(255,255,255,.16);color:#fff;border-radius:999px;padding:9px 11px;font-size:11px;font-weight:950;backdrop-filter:blur(8px)}.promote-btn:active{transform:scale(.97);background:rgba(255,255,255,.25)}.promotion-panel{margin-top:10px;border-radius:18px;background:rgba(255,255,255,.78);padding:12px 0 14px}.promotion-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 4px}.promotion-chip{border:1px solid rgba(18,104,255,.14);border-radius:14px;background:#fff;padding:10px}.promotion-chip span{display:block;color:var(--muted);font-size:11px;font-weight:800}.promotion-chip strong{display:block;margin-top:4px;color:var(--deep-blue);font-size:14px;font-weight:950}.promotion-grade-line{margin:8px 0 0;color:var(--muted);font-size:13px;font-weight:700}.promotion-grade-line strong{color:var(--deep-blue);font-weight:950}
     .home-quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.home-quick.single{grid-template-columns:1fr}.home-quick.three{grid-template-columns:repeat(3,1fr);gap:8px}.home-quick.three .home-quick-btn{font-size:13px;padding:0 6px}.home-quick-btn{height:54px;border:1px solid rgba(18,104,255,.18);border-radius:18px;background:rgba(255,255,255,.76);color:var(--deep-blue);font-size:15px;font-weight:950;box-shadow:0 10px 24px rgba(7,71,184,.08)}.home-quick-btn:active{transform:scale(.985);background:var(--light-blue)}
     .home-block{margin-top:18px}.home-block-head{display:flex;align-items:end;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px}.home-block-head h2{margin:0;font-size:18px;font-weight:950;letter-spacing:-.6px}.home-event-list{display:grid;gap:10px}.home-event-card{position:relative;overflow:hidden;min-height:124px;border:1px solid rgba(18,104,255,.16);border-radius:18px;background:rgba(255,255,255,.78);box-shadow:0 10px 24px rgba(7,71,184,.08);padding:0 15px;background-repeat:no-repeat;color:var(--text)}.home-event-card.dragon-home-card{cursor:pointer}.home-event-card.has-image{background-color:#0d1b33;color:#fff}.home-event-card.has-image:before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.42);z-index:0}.home-event-card>*{position:relative;z-index:1}.home-event-card.has-image .home-event-name{color:#fff}.home-event-card.has-image .home-event-type{color:rgba(255,255,255,.76)}.home-event-card.has-image .home-event-period{color:#fff}.home-event-name{position:absolute;left:15px;right:15px;bottom:64px;margin:0;font-size:18px;font-weight:950;letter-spacing:-.5px;color:var(--text)}.home-event-type{position:absolute;left:15px;right:15px;bottom:44px;margin:0;font-size:12px;font-weight:500;color:var(--muted)}.home-event-period{position:absolute;left:15px;right:15px;bottom:16px;margin:0;font-size:13px;font-weight:800;color:var(--deep-blue);line-height:1.35;white-space:nowrap;letter-spacing:-.35px}.home-empty{padding:16px 4px;color:var(--muted);font-size:13px;text-align:center;border-bottom:1px solid var(--line)}
-    .dragon-alert{display:none;margin-top:18px;border:1px solid rgba(220,38,38,.28);border-radius:18px;background:linear-gradient(135deg,#ef4444,#b91c1c);box-shadow:0 14px 30px rgba(185,28,28,.22);padding:16px 16px 15px;color:#fff}
+    .dragon-alert{display:none;margin-top:18px;border:1px solid rgba(220,38,38,.28);border-radius:18px;background:linear-gradient(135deg,#ef4444,#b91c1c);box-shadow:0 14px 30px rgba(185,28,28,.22);padding:22px 18px 21px;color:#fff;text-align:center}
     .dragon-alert.open{display:block}
-    .dragon-alert h2{margin:0 0 8px;font-size:17px;font-weight:950;letter-spacing:-.5px;color:#fff}
-    .dragon-alert p{margin:0;color:rgba(255,255,255,.86);font-size:13px;font-weight:750;line-height:1.55;letter-spacing:-.35px}
-    .dragon-alert .countdown{margin-top:10px;color:#fff;font-size:15px;font-weight:950;letter-spacing:-.3px}
+    .dragon-alert h2{margin:0 0 10px;font-size:17px;font-weight:950;letter-spacing:-.5px;color:#fff}
+    .dragon-alert p{margin:0 auto;color:rgba(255,255,255,.88);font-size:13px;font-weight:500;line-height:1.55;letter-spacing:-.35px}
+    .dragon-alert .count-label{margin-top:16px;color:#fff;font-size:15px;font-weight:950;letter-spacing:-.3px}
+    .dragon-alert .countdown{margin-top:4px;color:#fff;font-size:22px;font-weight:950;letter-spacing:-.5px;line-height:1.18}
 
 
     .home-event-card{cursor:pointer}
@@ -184,7 +185,8 @@
     <section class="dragon-alert" id="dragonTodayAlert">
       <h2>용의 협곡 미참여 상태입니다.</h2>
       <p>용의 협곡 참여 후 용의 협곡 화면에서 참여로 바꿔주세요.</p>
-      <div class="countdown" id="dragonTodayCountdown">남은 시간 --시간 --분 --초</div>
+      <div class="count-label">남은 시간</div>
+      <div class="countdown" id="dragonTodayCountdown">--시간 --분 --초</div>
     </section>
     <section class="home-block" id="homeEventBlock">
       <div class="home-block-head"><h2>현재 진행 중인 이벤트</h2></div>
@@ -605,12 +607,36 @@ function memberDragonKeys(member){
   if(member){
     if(member.id)keys.push(String(member.id));
     if(member.uid)keys.push(String(member.uid));
+    if(member.nickname)keys.push(String(member.nickname));
+    if(member.email)keys.push(String(member.email));
   }
-  if(currentUser&&member&&(member.uid===currentUser.uid||String(member.id)===String(currentUser.uid)))keys.push(String(currentUser.uid));
+  if(currentUser&&member&&(member.uid===currentUser.uid||String(member.id)===String(currentUser.uid)||member.email===currentUser.email)){
+    keys.push(String(currentUser.uid));
+    if(currentUser.email)keys.push(String(currentUser.email));
+    if(currentUser.displayName)keys.push(String(currentUser.displayName));
+  }
   return [...new Set(keys.filter(Boolean))];
 }
-function dragonEntryForDate(data,key){const raw=data[key]; if(raw&&typeof raw==='object'&&!Array.isArray(raw))return raw; if(raw===true)return {[currentMemberId()]:true}; return {}}
-function isDragonJoined(data,date,member){if(!member)return false; const entry=dragonEntryForDate(data,dragonDateKey(date)); return memberDragonKeys(member).some(k=>entry[k]===true)}
+function normalizeDragonEntry(raw){
+  const entry={};
+  if(raw===true){entry[currentMemberId()]=true;return entry}
+  if(Array.isArray(raw)){raw.forEach(v=>{if(v)entry[String(v)]=true});return entry}
+  if(raw&&typeof raw==='object'){
+    Object.keys(raw).forEach(k=>{
+      const v=raw[k];
+      if(k==='joined'||k==='participants'||k==='members'){
+        if(Array.isArray(v))v.forEach(id=>{if(id)entry[String(id)]=true});
+        else if(v&&typeof v==='object')Object.keys(v).forEach(id=>{if(v[id])entry[String(id)]=true});
+      }else{
+        entry[k]=v;
+      }
+    });
+  }
+  return entry;
+}
+function dragonEntryForDate(data,key){return normalizeDragonEntry(data[key])}
+function isJoinedValue(v){return v===true||v==='true'||v==='참여'||v==='joined'||v==='join'||v===1}
+function isDragonJoined(data,date,member){if(!member)return false; const entry=dragonEntryForDate(data,dragonDateKey(date)); return memberDragonKeys(member).some(k=>isJoinedValue(entry[k]))}
 function dragonStatusForDate(data,d,i){if(i===0)return null; const m=currentMember(); if(!m)return false; return isDragonJoined(data,d,m)}
 function setDragonCurrentMemberStatus(dateKey,value){
   const data=loadDragon();
@@ -623,6 +649,7 @@ function setDragonCurrentMemberStatus(dateKey,value){
   data[dateKey]=entry;
   saveDragon(data);
   renderHomeDragonNotice();
+  renderDragonParticipants(false);
   if(currentView==='home')renderHomeEvents();
 }
 function dragonWeekTable(mon,mode='current'){
@@ -643,7 +670,7 @@ function bindDragonStatusButtons(root, after){
     const key=btn.dataset.date;
     const entry=dragonEntryForDate(data,key);
     const member=currentMember();
-    const joined=member?memberDragonKeys(member).some(k=>entry[k]===true):entry[currentMemberId()]===true;
+    const joined=member?memberDragonKeys(member).some(k=>isJoinedValue(entry[k])):isJoinedValue(entry[currentMemberId()]);
     setDragonCurrentMemberStatus(key,!joined);
     after&&after();
     renderHomeDragonNotice();
@@ -841,7 +868,7 @@ function renderHomeDragonNotice(){
   const state=todayDragonAlertState();
   alertEl.classList.toggle('open',!!state.show);
   if(state.show){
-    countEl.textContent=`남은 시간 ${formatCountdown(state.left)}`;
+    countEl.textContent=formatCountdown(state.left);
     if(state.left<=0){setTimeout(()=>{renderHomeDragonNotice();renderDragonCanyon(false);renderDragonParticipants(false)},500)}
   }
 }
