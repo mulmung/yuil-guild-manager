@@ -19,7 +19,7 @@
     .badge{width:fit-content;padding:7px 12px;border-radius:999px;background:var(--light-blue);color:var(--deep-blue);font-size:11px;font-weight:900}.join-title{margin:18px 0 6px;font-size:30px;line-height:1.15;font-weight:950;letter-spacing:-1.2px}.join-desc{margin:0 0 26px;color:var(--muted);font-size:14px;line-height:1.55}
 
     .auth-box{margin:18px 0 18px;padding:14px;border:1px solid rgba(18,104,255,.16);border-radius:18px;background:rgba(238,246,255,.7)}
-    .auth-status{margin:0 0 10px;color:var(--muted);font-size:13px;font-weight:750;line-height:1.45}.auth-status strong{color:var(--deep-blue);font-weight:950}
+    .auth-status{margin:0 0 10px;color:var(--muted);font-size:13px;font-weight:750;line-height:1.45}.auth-status strong{color:var(--deep-blue);font-weight:950}.auth-status .login-done{display:block;color:var(--deep-blue);font-size:14px;font-weight:950;margin-bottom:4px}.auth-status .login-email{display:block;color:var(--muted);font-size:12px;font-weight:700;margin-top:2px}.join-role-note{margin:10px 0 0;color:var(--muted);font-size:12px;font-weight:750;line-height:1.55}.join-role-note strong{color:var(--deep-blue);font-weight:950}
     .google-btn{width:100%;height:48px;border-radius:14px;border:1px solid rgba(18,104,255,.18);background:#fff;color:var(--deep-blue);font-size:14px;font-weight:950;box-shadow:0 8px 18px rgba(7,71,184,.06)}
     .google-btn.secondary{margin-top:8px;color:var(--muted);font-size:12px;height:42px}
     .cloud-note{margin:8px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
@@ -149,6 +149,7 @@
       </div>
       <label for="nicknameInput">닉네임</label><input id="nicknameInput" type="text" placeholder="닉네임을 입력하세요" autocomplete="off">
       <label for="rankSelect">승급</label><select id="rankSelect"></select>
+      <p class="join-role-note" id="joinRoleNotice">Google 로그인 후 가입 권한이 표시됩니다.</p>
       <button class="primary-btn" id="joinBtn">가입하기</button>
     </div></div>
   </section>
@@ -758,8 +759,32 @@ function setJoinEnabled(enabled){['nicknameInput','rankSelect','joinBtn'].forEac
 function updateAuthStatus(user){
   const status=$('authStatus'),login=$('googleLoginBtn'),logout=$('googleLogoutBtn');
   if(!status)return;
-  if(user){status.innerHTML=`<strong>${user.displayName||user.email||'Google 계정'}</strong>으로 로그인되었습니다.`; if(login)login.style.display='none'; if(logout)logout.style.display='block'; setJoinEnabled(true); if(!$('nicknameInput').value&&user.displayName)$('nicknameInput').value=user.displayName}
-  else{status.textContent='Google 로그인 후 가입 정보를 저장할 수 있습니다.'; if(login)login.style.display='block'; if(logout)logout.style.display='none'; setJoinEnabled(false)}
+  if(user){
+    const name=user.displayName||'Google 계정';
+    const email=user.email||'';
+    status.innerHTML=`<span class="login-done">Google 로그인 완료</span><strong>${name}</strong>${email?`<span class="login-email">${email}</span>`:''}`;
+    if(login)login.style.display='none';
+    if(logout)logout.style.display='block';
+    setJoinEnabled(true);
+    if(!$('nicknameInput').value&&user.displayName)$('nicknameInput').value=user.displayName;
+  }
+  else{
+    status.textContent='Google 로그인 후 가입 정보를 저장할 수 있습니다.';
+    const notice=$('joinRoleNotice'); if(notice)notice.textContent='Google 로그인 후 가입 권한이 표시됩니다.';
+    if(login)login.style.display='block';
+    if(logout)logout.style.display='none';
+    setJoinEnabled(false);
+  }
+}
+function updateJoinRoleNotice(){
+  const notice=$('joinRoleNotice');
+  if(!notice)return;
+  if(!currentUser){notice.textContent='Google 로그인 후 가입 권한이 표시됩니다.';return;}
+  const members=loadMembers();
+  const existing=currentMember();
+  if(existing){notice.innerHTML=`이미 가입되어 있습니다. 현재 직책은 <strong>${existing.position}</strong>입니다.`;return;}
+  if(members.length===0)notice.innerHTML='현재 첫 가입자입니다. 가입하면 <strong>대표</strong>로 자동 등록됩니다.';
+  else notice.innerHTML='가입하면 기본 직책은 <strong>사원</strong>으로 등록됩니다. 대표가 인사 관리에서 변경할 수 있습니다.';
 }
 async function signInGoogle(){try{await signInWithPopup(auth,provider)}catch(err){console.warn('팝업 로그인 실패, 리디렉션 시도:',err); try{await signInWithRedirect(auth,provider)}catch(e){alert('Google 로그인에 실패했습니다. 다시 시도해주세요.')}}}
 async function logOutGoogle(){if(!confirm('로그아웃하시겠습니까?'))return; await signOut(auth); location.reload()}
@@ -769,6 +794,7 @@ async function initFirebaseAuth(){
     currentUser=user; updateAuthStatus(user);
     if(!user){$('joinScreen').classList.add('active');$('mainScreen').classList.remove('active');return}
     await loadCloudState();
+    updateJoinRoleNotice();
     const existing=currentMember();
     if(existing){showMain(existing)}
     else{$('joinScreen').classList.add('active');$('mainScreen').classList.remove('active')}
@@ -812,7 +838,22 @@ fillRanks($('rankSelect'));fillRanks($('editRank'));fillRanks($('newHistoryRank'
 $('googleLoginBtn').onclick=signInGoogle; $('googleLogoutBtn').onclick=logOutGoogle;
 $('editGrade').onchange=()=>{$('editRank').value=rankFromGrade($('editGrade').value)}; $('editRank').onchange=()=>{$('editGrade').value=gradeFromRank($('editRank').value)}; $('newHistoryRank').onchange=updateNewHistoryGrade;
 $('promoteBtn').onclick=openPromotionPanel; $('closePromotionBtn').onclick=()=>$('promotionPanel').classList.remove('open'); $('savePromotionBtn').onclick=savePromotion;
-$('joinBtn').onclick=async()=>{if(!currentUser){alert('Google 로그인 후 가입할 수 있습니다.');return} const nickname=$('nicknameInput').value.trim();const rank=$('rankSelect').value;const grade=gradeFromRank(rank);if(!nickname){alert('닉네임을 입력해주세요.');$('nicknameInput').focus();return} const members=loadMembers().filter(m=>!(m.uid===currentUser.uid||String(m.id)===String(currentUser.uid)));const now=todayText();const member={id:currentUser.uid,uid:currentUser.uid,email:currentUser.email||'',nickname,position:'사원',grade,rank,joinDate:now,status:'active',history:[{date:now,grade,rank}],memberHistory:[{type:'가입',date:now}]};members.push(member);saveMembers(members);await saveCloudStateNow();showMain(member)};
+$('joinBtn').onclick=async()=>{
+  if(!currentUser){alert('Google 로그인 후 가입할 수 있습니다.');return}
+  const nickname=$('nicknameInput').value.trim();
+  const rank=$('rankSelect').value;
+  const grade=gradeFromRank(rank);
+  if(!nickname){alert('닉네임을 입력해주세요.');$('nicknameInput').focus();return}
+  const members=loadMembers().filter(m=>!(m.uid===currentUser.uid||String(m.id)===String(currentUser.uid)));
+  const isFirstGuildMember=members.length===0;
+  const now=todayText();
+  const member={id:currentUser.uid,uid:currentUser.uid,email:currentUser.email||'',nickname,position:isFirstGuildMember?'대표':'사원',grade,rank,joinDate:now,status:'active',history:[{date:now,grade,rank}],memberHistory:[{type:'가입',date:now}]};
+  members.push(member);
+  saveMembers(members);
+  await saveCloudStateNow();
+  updateJoinRoleNotice();
+  showMain(member);
+};
 document.querySelectorAll('.page-back').forEach(btn=>btn.onclick=goBack);$('menuBtn').onclick=openDrawer;$('closeDrawerBtn').onclick=closeDrawer;$('drawerBackdrop').onclick=closeDrawer;$('homeBtn').onclick=()=>showHome(true);$('quickGuildBtn').onclick=()=>showSection('guildGreeting');$('quickManageBtn').onclick=()=>showSection('manageSection');$('quickDragonManageBtn').onclick=()=>showSection('dragonManage');$('quickEventManageBtn').onclick=()=>showSection('eventManage');document.querySelectorAll('.menu-item').forEach(item=>item.onclick=()=>showSection(item.dataset.target));$('activeTabBtn').onclick=()=>setManageTab('active');$('withdrawTabBtn').onclick=()=>setManageTab('withdraw');$('dragonCanyonJoinTabBtn').onclick=()=>setDragonCanyonTab('join');$('dragonCanyonPlacementTabBtn').onclick=()=>setDragonCanyonTab('placement');$('dragonSeasonTabBtn').onclick=()=>setDragonManageTab('season');$('dragonParticipantTabBtn').onclick=()=>setDragonManageTab('participant');$('dragonPlacementTabBtn').onclick=()=>setDragonManageTab('placement');$('addDragonSeasonBtn').onclick=()=>{$('dragonSeasonForm').classList.toggle('open'); if(!$('dragonSeasonForm').classList.contains('open'))resetDragonSeasonForm()};$('saveDragonSeasonBtn').onclick=saveDragonSeason;$('addDragonPlacementBtn').onclick=()=>{$('dragonPlacementForm').classList.toggle('open');if($('dragonPlacementForm').classList.contains('open'))resetDragonPlacementForm();else resetDragonPlacementForm()};$('dragonPlacementSeason').onchange=fillPlacementWeeks;$('autoDragonPlacementBtn').onclick=autoDragonPlacement;$('closeEditBtn').onclick=()=>{$('editPanel').style.display='none';editingMemberIndex=null};$('closeWithdrawViewBtn').onclick=()=>{$('withdrawViewPanel').style.display='none'};$('saveManageBtn').onclick=saveBasicInfo;$('addHistoryBtn').onclick=()=>{$('addHistoryForm').classList.toggle('open')};$('saveNewHistoryBtn').onclick=addHistory;$('addMemberHistoryBtn').onclick=()=>{$('addMemberHistoryForm').classList.toggle('open')};$('saveNewMemberHistoryBtn').onclick=addMemberHistory;$('addEventBtn').onclick=()=>{$('eventForm').classList.toggle('open');if(!$('eventForm').classList.contains('open'))resetEventForm()};$('saveEventBtn').onclick=saveEvent;
 
 ['dragonSeasonImageX','dragonSeasonImageY','dragonSeasonImageZoom'].forEach(id=>{const el=$(id); if(el)el.oninput=()=>{dragonSeasonImageX=Number($('dragonSeasonImageX').value); dragonSeasonImageY=Number($('dragonSeasonImageY').value); dragonSeasonImageZoom=Number($('dragonSeasonImageZoom').value); updateDragonSeasonImagePreview()}});
