@@ -459,6 +459,13 @@ function currentMember(){
   const members=loadMembers();
   return members.find(m=>m&&m.status!=='withdrawn'&&(m.uid===currentUser.uid||String(m.id)===String(currentUser.uid)))||null;
 }
+function currentMemberRecord(){
+  if(!currentUser)return null;
+  const members=loadMembers();
+  const i=members.findIndex(m=>m&&m.status!=='withdrawn'&&(m.uid===currentUser.uid||String(m.id)===String(currentUser.uid)));
+  if(i<0)return null;
+  return {i,m:members[i]};
+}
 const adminTargets=['manageSection','dragonManage','eventManage'];
 function isRepresentative(){const m=currentMember();return !!m&&m.position==='대표'}
 function applyRoleVisibility(){const admin=isRepresentative(); const homeManage=$('homeManageBlock'); if(homeManage)homeManage.style.display=(currentView==='home'&&admin)?'block':'none'; document.querySelectorAll('.menu-item').forEach(item=>{if(adminTargets.includes(item.dataset.target))item.style.display=admin?'block':'none'});}
